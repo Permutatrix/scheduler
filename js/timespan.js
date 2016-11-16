@@ -36,8 +36,8 @@ export function create(length, defaultActivity) {
       if(maximum === undefined) {
         maximum = length;
       }
-      const id = idForActivity[activity];
-      if(!id) {
+      const id = activity === undefined ? 0 : idForActivity[activity];
+      if(typeof id !== 'number') {
         return maximum;
       }
       return asm.findStartOf(id, from, maximum);
@@ -49,9 +49,11 @@ export function create(length, defaultActivity) {
       return asm.findStart(from);
     },
     get(at) {
-      const id = data[at|0];
-      if(id) {
-        return activityForId[id];
+      if(at >= 0 && at < length) {
+        const id = data[at|0];
+        if(id) {
+          return activityForId[id];
+        }
       }
     }
   };
