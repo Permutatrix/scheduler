@@ -1,0 +1,40 @@
+{
+  "name": "scheduler",
+  "version": "0.0.0",
+  "description": "Permutator's HTML5 scheduling utility",
+  "main": "dist/main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Permutatrix/scheduler.git"
+  },
+  "author": "Permutator <permutatorem@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Permutatrix/scheduler/issues"
+  },
+  "homepage": "https://github.com/Permutatrix/scheduler#readme",
+  "private": true,
+  "devDependencies": {
+    "babel-preset-es2015": "^6.14.0",
+    "babel-preset-es2015-minimal": "^2.1.0",
+    "del": "^2.2.2",
+    "gulp": "^3.9.1",
+    "gulp-babel": "^6.1.2",
+    "gulp-csso": "^2.0.0",
+    "gulp-iife": "^0.3.0",
+    "gulp-sass": "^2.3.2",
+    "gulp-uglify": "^2.0.0",
+    "gulp-watch": "^4.3.9",
+    "http-server": "^0.9.0",
+    "merge-stream": "^1.0.0",
+    "ractive": "github:ractivejs/ractive#da40f81c660ba2f09c45a09a9c20fdd34ee36d80",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "rollup-plugin-ractive": "^1.2.1",
+    "rollup-stream": "^1.14.0",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}

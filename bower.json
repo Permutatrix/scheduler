@@ -1,0 +1,14 @@
+{
+  "name": "scheduler",
+  "description": "Permutator's HTML5 scheduling utility",
+  "main": "dist/main.js",
+  "authors": [
+    "Permutator <permutatorem@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/Permutatrix/scheduler#readme",
+  "private": true,
+  "dependencies": {
+    "underscore": "^1.8.3"
+  }
+}
