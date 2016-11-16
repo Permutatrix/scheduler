@@ -32,15 +32,18 @@ export function create(length, defaultActivity) {
     overwritePeriodically({ from, to, period, cycles, activity }) {
       return asm.overwritePeriodically(from, to, period, cycles, getID(activity));
     },
-    findStartOf({ activity, from }) {
+    findStartOf({ activity, from, maximum }) {
+      if(maximum === undefined) {
+        maximum = length;
+      }
       const id = idForActivity[activity];
       if(!id) {
-        return length;
+        return maximum;
       }
-      return asm.findStartOf(id, from);
+      return asm.findStartOf(id, from, maximum);
     },
-    findEnd({ from }) {
-      return asm.findEnd(from);
+    findEnd({ from, maximum }) {
+      return asm.findEnd(from, maximum === undefined ? length : maximum);
     },
     findStart({ from }) {
       return asm.findStart(from);
@@ -165,20 +168,25 @@ function createASM(stdlib, foreign, buffer) {
     return total|0;
   }
   
-  function findStartOf(value, from) {
+  function findStartOf(value, from, maximum) {
     value = value|0;
     from = from|0;
+    maximum = maximum|0;
     
-    var quart = 0, fromQ = 0, shortLength = 0;
+    var quart = 0, fromQ = 0, shortMaximum = 0;
+    
+    if((maximum|0) > (length|0)) {
+      maximum = length;
+    }
     
     if((from|0) < 0) {
       from = 0;
-    } else if((from|0) >= (length|0)) {
-      return length|0;
+    } else if((from|0) >= (maximum|0)) {
+      return maximum|0;
     } else {
       fromQ = (from + 3) & ~3;
-      if((fromQ|0) > (length|0)) {
-        fromQ = length;
+      if((fromQ|0) > (maximum|0)) {
+        fromQ = maximum;
       }
       while((from|0) < (fromQ|0)) {
         if((data[from >> 0]|0) == (value|0)) {
@@ -187,38 +195,39 @@ function createASM(stdlib, foreign, buffer) {
         from = (from + 1)|0;
       }
     }
-    shortLength = (length - 3)|0;
+    
+    shortMaximum = (maximum - 3)|0;
     while(1) {
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) == (value|0)) {
         return fromQ|0;
       }
       fromQ = (fromQ + 1)|0;
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) == (value|0)) {
         return fromQ|0;
       }
       fromQ = (fromQ + 1)|0;
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) == (value|0)) {
         return fromQ|0;
       }
       fromQ = (fromQ + 1)|0;
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) == (value|0)) {
         return fromQ|0;
       }
       quart = quarts[fromQ >> 2]|0;
       fromQ = (fromQ + 1)|0;
-      while((fromQ|0) < (shortLength|0)) {
+      while((fromQ|0) < (shortMaximum|0)) {
         if((quarts[fromQ >> 2]|0) != (quart|0)) {
           break;
         }
@@ -226,62 +235,68 @@ function createASM(stdlib, foreign, buffer) {
       }
     }
     // This shouldn't be reachable.
-    return length|0;
+    return maximum|0;
   }
   
-  function findEnd(from) {
+  function findEnd(from, maximum) {
     from = from|0;
+    maximum = maximum|0;
     
-    var value = 0, quart = 0, fromQ = 0, shortLength = 0;
+    var value = 0, quart = 0, fromQ = 0, shortMaximum = 0;
+    
+    if((maximum|0) > (length|0)) {
+      maximum = length;
+    }
     
     if((from|0) < 0) {
       return 0;
-    } else if((from|0) >= (length|0)) {
-      return length|0;
+    } else if((from|0) >= (maximum|0)) {
+      return maximum|0;
     }
     
     value = data[from >> 0]|0;
     fromQ = (from + 3) & ~3;
-    if((fromQ|0) > (length|0)) {
-      fromQ = length;
+    if((fromQ|0) > (maximum|0)) {
+      fromQ = maximum;
     }
     for(from = (from + 1)|0; (from|0) < (fromQ|0); from = (from + 1)|0) {
       if((data[from >> 0]|0) != (value|0)) {
         return from|0;
       }
     }
+    
     quart = value | (value << 8) | (value << 16) | (value << 24);
-    shortLength = (length - 3)|0;
+    shortMaximum = (maximum - 3)|0;
     while(1) {
-      while((fromQ|0) < (shortLength|0)) {
+      while((fromQ|0) < (shortMaximum|0)) {
         if((quarts[fromQ >> 2]|0) != (quart|0)) {
           break;
         }
         fromQ = (fromQ + 4)|0;
       }
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) != (value|0)) {
         return fromQ|0;
       }
       fromQ = (fromQ + 1)|0;
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) != (value|0)) {
         return fromQ|0;
       }
       fromQ = (fromQ + 1)|0;
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) != (value|0)) {
         return fromQ|0;
       }
       fromQ = (fromQ + 1)|0;
-      if((fromQ|0) >= (length|0)) {
-        return length|0;
+      if((fromQ|0) >= (maximum|0)) {
+        return maximum|0;
       }
       if((data[fromQ >> 0]|0) != (value|0)) {
         return fromQ|0;
@@ -289,7 +304,7 @@ function createASM(stdlib, foreign, buffer) {
       fromQ = (fromQ + 1)|0;
     }
     // This shouldn't be reachable.
-    return length|0;
+    return maximum|0;
   }
   
   function findStart(from) {
@@ -310,6 +325,7 @@ function createASM(stdlib, foreign, buffer) {
         return (from + 1)|0;
       }
     }
+    
     quart = value | (value << 8) | (value << 16) | (value << 24);
     fromQ = (fromQ - 1)|0;
     while(1) {
