@@ -32,18 +32,18 @@ export function create(length, defaultActivity) {
     overwritePeriodically({ from, to, period, cycles, activity }) {
       return asm.overwritePeriodically(from, to, period, cycles, getID(activity));
     },
-    findStartOf({ activity, from, maximum }) {
-      if(maximum === undefined) {
-        maximum = length;
+    findStartOf({ activity, from, to }) {
+      if(to === undefined) {
+        to = length;
       }
       const id = activity === undefined ? 0 : idForActivity[activity];
       if(typeof id !== 'number') {
-        return maximum;
+        return to;
       }
-      return asm.findStartOf(id, from, maximum);
+      return asm.findStartOf(id, from, to);
     },
-    findEnd({ from, maximum }) {
-      return asm.findEnd(from, maximum === undefined ? length : maximum);
+    findEnd({ from, to }) {
+      return asm.findEnd(from, to === undefined ? length : to);
     },
     findStart({ from }) {
       return asm.findStart(from);
