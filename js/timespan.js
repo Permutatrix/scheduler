@@ -1,8 +1,8 @@
+import { assert } from './utils.js';
+
 export function create(length, defaultActivity) {
   length = length|0;
-  if(length < 0) {
-    throw Error(`Can't create a timespan of negative length (${length})!`);
-  }
+  assert(length >= 0, "Can't create a timespan of negative length (",length,")!");
   
   const buffer = new ArrayBuffer(nextValidASMHeapSize(length));
   const asm = createASM(window, { length }, buffer);
@@ -16,9 +16,7 @@ export function create(length, defaultActivity) {
       return id;
     } else {
       const newID = activityForId.length;
-      if(newID > 0xFF) {
-        throw Error("The number of activities exceeds the limit of 255!");
-      }
+      assert(newID <= 0xFF, "The number of activities exceeds the limit of 255!");
       activityForId.push(activity);
       idForActivity[activity] = newID;
       return newID;

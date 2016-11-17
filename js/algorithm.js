@@ -5,8 +5,8 @@ export function schedule({ dayLength, dayCount, activities }) {
   dayLength = dayLength|0;
   dayCount = dayCount|0;
   
-  assert(dayLength >= 0, `dayLength of ${dayLength} is less than zero!`);
-  assert(dayCount >= 0, `dayCount of ${dayCount} is less than zero!`);
+  assert(dayLength >= 0, "dayLength of ",dayLength," is less than zero!");
+  assert(dayCount >= 0, "dayCount of ",dayCount," is less than zero!");
   
   const length = dayLength * dayCount, timespan = Timespan.create(length);
   let patterns = activities.patterns || [activities.pattern];
@@ -15,9 +15,9 @@ export function schedule({ dayLength, dayCount, activities }) {
   for(let patternIndex = 0; patternIndex < patternCount; ++patternIndex) {
     const pattern = patterns[patternIndex];
     pattern.requires.forEach(x => x.forEach(y => assert(pattern.slots[y],
-        `Can't require nonexistent slot "${y}!"`)));
+        "Can't require nonexistent slot \"",y,"\"!")));
     pattern.excludes.forEach(x => x.forEach(y => assert(pattern.slots[y],
-        `Can't exclude nonexistent slot "${y}!"`)));
+        "Can't exclude nonexistent slot \"",y,"\"!")));
     requiresExcludes[patternIndex] = pattern && {
       requires: spread(pattern.requires),
       excludes: spread(pattern.excludes)
@@ -36,13 +36,13 @@ export function schedule({ dayLength, dayCount, activities }) {
       if(tssf === undefined) {
         timeSpentSoFar[activity] = 0;
       } else {
-        assert(tssf === (tssf|0), `Time spent so far of ${tssf} isn't an integer!`);
+        assert(tssf === (tssf|0), "Time spent so far of ",tssf," isn't an integer!");
       }
       if(!allotments[activity]) {
         if(activities.allotments) {
           const allotment = activities.allotments[activity];
-          assert(allotment === (allotment|0), `Allotment of ${allotment} isn't an integer!`);
-          assert(allotment > 0, `Allotment of ${allotment} isn't greater than zero!`);
+          assert(allotment === (allotment|0), "Allotment of ",allotment," isn't an integer!");
+          assert(allotment > 0, "Allotment of ",allotment," isn't greater than zero!");
           allotments[activity] = allotment;
         } else {
           allotments[activity] = 1;
@@ -138,23 +138,90 @@ export function schedule({ dayLength, dayCount, activities }) {
     if(!pattern) {
       continue;
     }
+    
     const { requires, excludes } = requiresExcludes[dayIndex % patternCount];
     const { slots } = pattern;
-    const day = createDay(dayIndex * dayLength, dayIndex * dayLength + dayLength);
-    const dayLength = day.blocks.reduce((l, b) => l + b.to - b.from, 0);
+    
     adjustTimeSpentSoFar();
     const probabilities = {};
-    forKeys(timeSpentSoFar, (key, value) => {
-      
+    let greatestProbability = 0;
+    forKeys(allotments, (key, allotment) => {
+      const probability = Math.pow(0.5, timeSpentSoFar[key] / allotment);
+      probabilities[key] = probability;
+      greatestProbability = Math.max(greatestProbability, probability);
     });
+    forKeys(probabilities, (key, probability) => {
+      probabilities[key] = probability / greatestProbability;
+    });
+    
+    const day = createDay(dayIndex * dayLength, dayIndex * dayLength + dayLength);
+    const dayLength = day.blocks.reduce((l, b) => l + b.to - b.from, 0);
+    
     while(true) {
-      const includedSlots = [], pendingSlots = keys(slots);
-      let minimumTime = 0;
-      while(true) {
-        const previousMinimumTime = minimumTime;
+      let includedSlots = [], pendingSlots = [], numberOfSlotsForActivity = {};
+      forKeys(slots, (key, value) => {
+        pendingSlots.push(key);
+        numberOfSlotsForActivity[key] = (numberOfSlotsForActivity[key]|0) + 1;
+      });
+      
+      let minimumTime = 0, preferredTime = 0;
+      
+      const exclude = function exclude(slot) {
+        const index = pendingSlots.indexOf(slot);
+        if(index) {
+          removeAt(pendingSlots, index);
+          numberOfSlotsForActivity[slot] -= 1;
+          const requirements = requires[slot];
+          requirements && requirements.forEach(exclude);
+        }
+      };
+      
+      const add = function add(slot) {
+        const index = pendingSlots.indexOf(slot);
+        assert(index !== -1, "Slot \"",slot,"\" was not pending!");
+        
+        removeAt(pendingSlots, index);
+        numberOfSlotsForActivity[slot] -= 1;
+        
+        includedSlots.push(slot);
+        const slotObj = slots[slot];
+        preferredTime += slotObj.preferredTime;
+        minimumTime += slotObj.minimumTime;
+        
+        const requirements = requires[slot], exclusions = excludes[slot];
+        exclusions && exclusions.forEach(exclude);
+        requirements && requirements.forEach(add);
+      };
+      
+      while(pendingSlots.length) {
+        const previous = {
+          minimumTime,
+          preferredTime,
+          includedSlots: includedSlots.slice(),
+          pendingSlots: pendingSlots.slice(),
+          numberOfSlotsForActivity: clone(numberOfSlotsForActivity)
+        };
+        
         let newSlot;
-        while(true) {
+        do {
           newSlot = pendingSlots[(Math.random() * pendingSlots.length)|0];
+        } while(Math.random() >= probabilities[newSlot.activity] / numberOfSlotsForActivity[newSlot.activity]);
+        
+        add(newSlot);
+        if(minimumTime > dayLength) {
+          ({
+            minimumTime,
+            preferredTime,
+            includedSlots,
+            pendingSlots,
+            numberOfSlotsForActivity
+          } = previous);
+          exclude(newSlot);
+          continue;
+        }
+        
+        if(preferredTime >= dayLength) {
+          break;
         }
       }
     }

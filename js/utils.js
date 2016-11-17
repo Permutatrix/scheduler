@@ -1,8 +1,11 @@
 const hasOwnProperty = Object.prototype.hasOwnProperty;
 
-export function assert(condition, message) {
+export function assert(condition, str) {
   if(!condition) {
-    throw Error(message);
+    for(let i = 2, len = arguments.length; i < len; ++i) {
+      str += arguments[i];
+    }
+    throw Error(str);
   }
 }
 
@@ -46,7 +49,7 @@ export function removeAt(array, index) {
 
 export function splitOn(str, delimiter) {
   const index = str.indexOf(delimiter);
-  assert(index >= 0, `"${str}" does not contain "${delimiter}"!`);
+  assert(index >= 0, "\"",str,"\" does not contain \"",delimiter,"\"!");
   return { start: str.substr(0, index), end: str.substr(index + 1) };
 }
 
