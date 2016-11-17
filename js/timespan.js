@@ -29,6 +29,9 @@ export function create(length, defaultActivity) {
     overwrite({ from, to, activity }) {
       return asm.overwrite(from, to, getID(activity));
     },
+    underwrite({ from, to, activity }) {
+      return asm.underwrite(from, to, getID(activity));
+    },
     overwritePeriodically({ from, to, period, cycles, activity }) {
       return asm.overwritePeriodically(from, to, period, cycles, getID(activity));
     },
@@ -126,6 +129,61 @@ function createASM(stdlib, foreign, buffer) {
     }
     
     return total|0;
+  }
+  
+  function underwrite(from, to, value) {
+    from = from|0;
+    to = to|0;
+    value = value|0;
+    
+    var quart = 0, fromQ = 0, toQ = 0;
+    
+    if((from|0) < 0) {
+      from = 0;
+    }
+    if((to|0) > (length|0)) {
+      to = length;
+    }
+    if((to|0) <= (from|0)) {
+      return;
+    }
+    
+    fromQ = (from + 3) & ~3;
+    toQ = to & ~3;
+    if(((fromQ|0) > (to|0)) ? 1 : ((toQ|0) < (from|0))) {
+      fromQ = to;
+      toQ = to;
+    } else {
+      quart = value | (value << 8) | (value << 16) | (value << 24);
+    }
+    
+    while((from|0) < (fromQ|0)) {
+      if(!(data[from >> 0]|0)) {
+        data[from >> 0] = value;
+      }
+      from = (from + 1)|0;
+    }
+    while((fromQ|0) < (toQ|0)) {
+      if(quarts[fromQ >> 2]|0) {
+        if(!(data[fromQ >> 0]|0)) {
+          data[fromQ >> 0] = value;
+        }
+        for(fromQ = (fromQ + 1)|0; fromQ & 3; fromQ = (fromQ + 1)|0) {
+          if(!(data[fromQ >> 0]|0)) {
+            data[fromQ >> 0] = value;
+          }
+        }
+      } else {
+        quarts[fromQ >> 2] = quart;
+        fromQ = (fromQ + 4)|0;
+      }
+    }
+    while((toQ|0) < (to|0)) {
+      if(!(data[toQ >> 0]|0)) {
+        data[toQ >> 0] = value;
+      }
+      toQ = (toQ + 1)|0;
+    }
   }
   
   function overwritePeriodically(from, to, period, cycles, value) {
@@ -360,6 +418,7 @@ function createASM(stdlib, foreign, buffer) {
   
   return {
     overwrite: overwrite,
+    underwrite: underwrite,
     overwritePeriodically: overwritePeriodically,
     findStartOf: findStartOf,
     findEnd: findEnd,
