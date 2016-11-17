@@ -1,3 +1,4 @@
+import './algorithm.js';
 import * as Backbone from './backbone.js';
 import Ractive from 'ractive';
 import Ractbone from './ractive-adaptors-backbone.js';
