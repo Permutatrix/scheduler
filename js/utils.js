@@ -7,7 +7,7 @@ export function assert(condition, message) {
 }
 
 export function forKeys(obj, callback) {
-  if(typeof obj === 'object') {
+  if(obj != null) {
     for(let key in obj) {
       if(hasOwnProperty.call(obj, key)) {
         callback(key, obj[key]);
