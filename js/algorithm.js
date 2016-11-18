@@ -86,20 +86,21 @@ export function schedule({ dayLength, dayCount, activities }) {
     return (function buildDay(blocks) {
       return {
         blocks,
-        allocate({ time, activity }) {
-          // Returns the amount of time that couldn't fit.
+        allocate({ length, activity }) {
+          // Returns the amount of length that couldn't fit.
           while(true) {
             if(!blocks.length) {
-              return time;
+              return length;
             }
             const block = blocks[blocks.length - 1];
             const blockLength = block.to - block.from;
-            if(blockLength > time) {
+            if(blockLength > length) {
               timespan.overwrite({
                 from: block.from,
-                to: block.from += time,
+                to: block.from += length,
                 activity: activity
               });
+              timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + length;
               return 0;
             } else {
               timespan.overwrite({
@@ -107,7 +108,8 @@ export function schedule({ dayLength, dayCount, activities }) {
                 to: block.to,
                 activity: activity
               });
-              time -= blockLength;
+              length -= blockLength;
+              timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + blockLength;
               blocks.pop();
             }
           }
@@ -263,7 +265,56 @@ export function schedule({ dayLength, dayCount, activities }) {
       // Clone emptyDay instead of just moving it if fail/retry is implemented.
       const day = emptyDay;
       
+      const allocatedSlots = [];
+      const unallocatedSlots = includedSlots.map(slot => ({
+        slotName: slot,
+        slotObj: slots[slot],
+        time: slot.preferredTime
+      }));
+      let bleed = 0;
+      while(unallocatedSlots.length) {
+        const currentTime = unallocatedSlots.reduce((t, s) => t + s.time, 0) +
+                              allocatedSlots.reduce((t, s) => t + s.time, 0);
+        if(currentTime === dayLength) {
+          break;
+        }
+        const makeup = (dayLength - currentTime) / unallocatedSlots.length;
+        for(let slotIndex = 0; slotIndex < unallocatedSlots.length;) {
+          const slot = unallocatedSlots[slotIndex];
+          const goalTime = slot.time + makeup + bleed;
+          const actualTime = (slot.time = (goalTime + 0.5)|0);
+          bleed = goalTime - actualTime;
+          const { slotObj } = slot;
+          if(actualTime > slotObj.maximumTime) {
+            slot.time = slotObj.maximumTime;
+            removeAt(unallocatedSlots, slotIndex);
+            allocatedSlots.push(slot);
+          } else if(actualTime < slotObj.minimumTime) {
+            slot.time = slotObj.minimumTime;
+            removeAt(unallocatedSlots, slotIndex);
+            allocatedSlots.push(slot);
+          } else {
+            ++slotIndex;
+          }
+        }
+      }
+      allocatedSlots.push.apply(allocatedSlots, unallocatedSlots);
+      const slotTimes = {};
+      allocatedSlots.forEach({ slotName, time } => {
+        slotTimes[slotName] = time;
+      });
+      
+      forKeys(slots, key => {
+        const time = slotTimes[key];
+        if(time) {
+          day.allocate({ length: time, activity: key });
+        }
+      });
+      
+      break;
       // Wipe emptyDay before retrying if fail/retry is implemented.
     }
   }
+  
+  return timespan;
 }
