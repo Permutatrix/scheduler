@@ -10,6 +10,9 @@ export function create(length, defaultActivity) {
   const activityForId = [defaultActivity || ''], idForActivity = {};
   
   function getID(activity) {
+    if(activity == null) {
+      return 0;
+    }
     activity = '' + activity;
     const id = idForActivity[activity];
     if(id) {

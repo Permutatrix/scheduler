@@ -1,4 +1,4 @@
-const hasOwnProperty = Object.prototype.hasOwnProperty;
+export const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 export function assert(condition, str) {
   if(!condition) {

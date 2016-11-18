@@ -1,5 +1,5 @@
 import * as Timespan from './timespan.js';
-import { assert, clone, forKeys, keys, removeAt, splitOn, spread } from './utils.js';
+import { assert, clone, forKeys, hasOwnProperty, keys, removeAt, splitOn, spread } from './utils.js';
 
 export function schedule({ dayLength, dayCount, activities }) {
   dayLength = dayLength|0;
@@ -32,11 +32,11 @@ export function schedule({ dayLength, dayCount, activities }) {
   const allotments = {};
   for(let patternIndex = 0; patternIndex < patternCount; ++patternIndex) {
     forKeys(patterns[patternIndex].slots, (key, { activity }) => {
-      const tssf = timeSpentSoFar[activity];
-      if(tssf === undefined) {
-        timeSpentSoFar[activity] = 0;
-      } else {
+      if(hasOwnProperty.call(timeSpentSoFar, activity)) {
+        const tssf = timeSpentSoFar[activity];
         assert(tssf === (tssf|0), "Time spent so far of ",tssf," isn't an integer!");
+      } else {
+        timeSpentSoFar[activity] = 0;
       }
       if(!allotments[activity]) {
         if(activities.allotments) {
@@ -81,16 +81,47 @@ export function schedule({ dayLength, dayCount, activities }) {
       blocks.push({ from: start, to: next });
     }
     
+    blocks.reverse();
+    
     return (function buildDay(blocks) {
-      return Object.freeze({
+      return {
         blocks,
+        allocate({ time, activity }) {
+          // Returns the amount of time that couldn't fit.
+          while(true) {
+            if(!blocks.length) {
+              return time;
+            }
+            const block = blocks[blocks.length - 1];
+            const blockLength = block.to - block.from;
+            if(blockLength > time) {
+              timespan.overwrite({
+                from: block.from,
+                to: block.from += time,
+                activity: activity
+              });
+              return 0;
+            } else {
+              timespan.overwrite({
+                from: block.from,
+                to: block.to,
+                activity: activity
+              });
+              time -= blockLength;
+              blocks.pop();
+            }
+          }
+        },
         clone() {
           return buildDay(blocks.map(block => ({
             from: block.from,
             to: block.to
           })));
+        },
+        wipe() {
+          blocks.forEach(timespan.overwrite);
         }
-      });
+      };
     })(blocks);
   }
   
@@ -140,13 +171,13 @@ export function schedule({ dayLength, dayCount, activities }) {
     }
     
     const { requires, excludes } = requiresExcludes[dayIndex % patternCount];
-    const { slots } = pattern;
+    const { slots, nonoptional } = pattern;
     
     adjustTimeSpentSoFar();
     const probabilities = {};
     let greatestProbability = 0;
     forKeys(allotments, (key, allotment) => {
-      const probability = Math.pow(0.5, timeSpentSoFar[key] / allotment);
+      const probability = allotment * Math.pow(0.5, timeSpentSoFar[key] / allotment);
       probabilities[key] = probability;
       greatestProbability = Math.max(greatestProbability, probability);
     });
@@ -154,9 +185,11 @@ export function schedule({ dayLength, dayCount, activities }) {
       probabilities[key] = probability / greatestProbability;
     });
     
-    const day = createDay(dayIndex * dayLength, dayIndex * dayLength + dayLength);
-    const dayLength = day.blocks.reduce((l, b) => l + b.to - b.from, 0);
+    const emptyDay = createDay(dayIndex * dayLength, dayIndex * dayLength + dayLength);
+    const dayLength = emptyDay.blocks.reduce((l, b) => l + b.to - b.from, 0);
     
+    // This is in a while(true) loop to allow failing and retrying.
+    // That isn't currently taken advantage of, so the loop only runs once.
     while(true) {
       let includedSlots = [], pendingSlots = [], numberOfSlotsForActivity = {};
       forKeys(slots, (key, value) => {
@@ -193,7 +226,12 @@ export function schedule({ dayLength, dayCount, activities }) {
         requirements && requirements.forEach(add);
       };
       
-      while(pendingSlots.length) {
+      nonoptional.forEach(add);
+      assert(minimumTime <= dayLength,
+             "Non-optional slots add up to at least ", minimumTime,
+             "; day length is only ", dayLength, "!");
+      
+      while(preferredTime < dayLength && pendingSlots.length) {
         const previous = {
           minimumTime,
           preferredTime,
@@ -205,7 +243,9 @@ export function schedule({ dayLength, dayCount, activities }) {
         let newSlot;
         do {
           newSlot = pendingSlots[(Math.random() * pendingSlots.length)|0];
-        } while(Math.random() >= probabilities[newSlot.activity] / numberOfSlotsForActivity[newSlot.activity]);
+        } while(Math.random() >=
+                probabilities[newSlot.activity] /
+                numberOfSlotsForActivity[newSlot.activity]);
         
         add(newSlot);
         if(minimumTime > dayLength) {
@@ -217,13 +257,13 @@ export function schedule({ dayLength, dayCount, activities }) {
             numberOfSlotsForActivity
           } = previous);
           exclude(newSlot);
-          continue;
-        }
-        
-        if(preferredTime >= dayLength) {
-          break;
         }
       }
+      
+      // Clone emptyDay instead of just moving it if fail/retry is implemented.
+      const day = emptyDay;
+      
+      // Wipe emptyDay before retrying if fail/retry is implemented.
     }
   }
 }
