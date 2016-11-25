@@ -30,6 +30,7 @@ export function schedule({ dayLength, dayCount, activities }) {
   }
   const timeSpentSoFar = clone(activities.timeSpentSoFar);
   const allotments = {};
+  let greatestAllotment = 1;
   for(let patternIndex = 0; patternIndex < patternCount; ++patternIndex) {
     forKeys(patterns[patternIndex].slots, (key, { activity }) => {
       if(hasOwnProperty.call(timeSpentSoFar, activity)) {
@@ -44,6 +45,9 @@ export function schedule({ dayLength, dayCount, activities }) {
           assert(allotment === (allotment|0), "Allotment of ",allotment," isn't an integer!");
           assert(allotment > 0, "Allotment of ",allotment," isn't greater than zero!");
           allotments[activity] = allotment;
+          if(allotment > greatestAllotment) {
+            greatestAllotment = allotment;
+          }
         } else {
           allotments[activity] = 1;
         }
@@ -179,9 +183,11 @@ export function schedule({ dayLength, dayCount, activities }) {
     const probabilities = {};
     let greatestProbability = 0;
     forKeys(allotments, (key, allotment) => {
-      const probability = allotment * Math.pow(0.5, timeSpentSoFar[key] / allotment);
+      const probability = Math.sqrt(allotment) * Math.pow(0.85, timeSpentSoFar[key] * greatestAllotment / allotment);
       probabilities[key] = probability;
-      greatestProbability = Math.max(greatestProbability, probability);
+      if(probability > greatestProbability) {
+        greatestProbability = probability;
+      }
     });
     forKeys(probabilities, (key, probability) => {
       probabilities[key] = probability / greatestProbability;
@@ -300,7 +306,7 @@ export function schedule({ dayLength, dayCount, activities }) {
       }
       allocatedSlots.push.apply(allocatedSlots, unallocatedSlots);
       const slotTimes = {};
-      allocatedSlots.forEach({ slotName, time } => {
+      allocatedSlots.forEach(({ slotName, time }) => {
         slotTimes[slotName] = time;
       });
       
