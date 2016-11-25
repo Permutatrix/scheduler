@@ -30,59 +30,71 @@ var sassEntry = './sass/main.scss';
 
 var ractiveSrc = '/ractive/src/';
 
-var rollupPlugins = [
-  {
-    resolveId: function(importee, importer) {
-      if(importee === 'ractive') {
-        return nodeResolve().resolveId('ractive/src/Ractive.js', importer);
-      }
-      
-      function isFile(fname) {
-        try {
-          return fs.lstatSync(fname).isFile();
-        } catch(e) {
-          return false;
+function rollupPlugins(options) {
+  const debug = options.debug;
+  return [
+    {
+      resolveId: function(importee, importer) {
+        if(importee === 'ractive') {
+          return nodeResolve().resolveId('ractive/src/Ractive.js', importer);
+        }
+        
+        if(importee === 'is-debug-build') {
+          return importee;
+        }
+        
+        function isFile(fname) {
+          try {
+            return fs.lstatSync(fname).isFile();
+          } catch(e) {
+            return false;
+          }
+        }
+        
+        if(!importer) return;
+        var position = importer.replace(/\\/g, '/').indexOf(ractiveSrc);
+        if(position === -1) return;
+        
+        var out = path.resolve(path.dirname(importer), importee);
+        if(isFile(out)) return out;
+        out += '.js';
+        if(isFile(out)) return out;
+        
+        out = path.resolve(importer.slice(0, position + ractiveSrc.length), importee);
+        if(isFile(out)) return out;
+        out += '.js';
+        if(isFile(out)) return out;
+      },
+      load: function(id) {
+        if(id === 'is-debug-build') {
+          return 'export default ' + JSON.stringify(debug) +';';
+        }
+      },
+      transform: function(source, id) {
+        if(!id || id.indexOf(ractiveSrc) === -1) {
+          return;
+        }
+        if(/legacy\.js|_parse\.js|_Triple\.js/.test(id)) {
+          return 'export default null;';
+        }
+        if(/(Ractive\.js|utils\/log\.js)$/.test(id)) {
+          return source.replace(/<@version@>/g, require('ractive/package.json').version);
         }
       }
-      
-      if(!importer) return;
-      var position = importer.replace(/\\/g, '/').indexOf(ractiveSrc);
-      if(position === -1) return;
-      
-      var out = path.resolve(path.dirname(importer), importee);
-      if(isFile(out)) return out;
-      out += '.js';
-      if(isFile(out)) return out;
-      
-      out = path.resolve(importer.slice(0, position + ractiveSrc.length), importee);
-      if(isFile(out)) return out;
-      out += '.js';
-      if(isFile(out)) return out;
     },
-    transform: function(source, id) {
-      if(!id || id.indexOf(ractiveSrc) === -1) {
-        return;
-      }
-      if(/legacy\.js|_parse\.js|_Triple\.js/.test(id)) {
-        return 'export default null;';
-      }
-      if(/(Ractive\.js|utils\/log\.js)$/.test(id)) {
-        return source.replace(/<@version@>/g, require('ractive/package.json').version);
-      }
-    }
-  },
-  nodeResolve(),
-  ractive({
-    extensions: ['.ractive']
-  })
-];
+    nodeResolve(),
+    ractive({
+      extensions: ['.ractive']
+    })
+  ];
+}
 
 var cache;
 gulp.task('js', function() {
   return rollup({
     entry: jsEntry,
     cache: cache,
-    plugins: rollupPlugins
+    plugins: rollupPlugins({ debug: true })
   })
   .on('bundle', function(module) {
     cache = module;
@@ -138,7 +150,7 @@ gulp.task('default', ['js', 'css', 'assets']);
 gulp.task('js-minified', function() {
   return rollup({
     entry: jsEntry,
-    plugins: rollupPlugins
+    plugins: rollupPlugins({ debug: false })
   })
   .on('error', function(e) {
     console.error(e.stack);
@@ -159,3 +171,8 @@ gulp.task('css-minified', function() {
 });
 
 gulp.task('minified', ['js-minified', 'css-minified', 'assets']);
+
+gulp.task('webserver-minified', ['minified'], function(cb) {
+  httpServer.createServer({ root: './dist' }).listen(8080);
+  console.log("\nhttp://localhost:8080/scheduler.html");
+});

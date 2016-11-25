@@ -3,8 +3,9 @@ import * as Backbone from './backbone.js';
 import Ractive from 'ractive';
 import Ractbone from './ractive-adaptors-backbone.js';
 import MainView from '../ractive/main.ractive';
+import isDebugBuild from 'is-debug-build';
 
-Ractive.DEBUG = /unminified/.test(function() {/*unminified*/});
+Ractive.DEBUG = isDebugBuild;
 
 import * as Timespan from './timespan.js';
 
