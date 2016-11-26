@@ -1,13 +1,13 @@
 import { assert } from './utils.js';
 
-export function create(length, defaultActivity) {
+export function create(length) {
   length = length|0;
   assert(length >= 0, "Can't create a timespan of negative length (",length,")!");
   
   const buffer = new ArrayBuffer(nextValidASMHeapSize(length));
   const asm = createASM(window, { length }, buffer);
   const data = new Uint8Array(buffer, 0, length);
-  const activityForId = [defaultActivity || ''], idForActivity = {};
+  const activityForId = [''], idForActivity = {};
   
   function getID(activity) {
     if(activity == null) {
