@@ -1,6 +1,50 @@
 import * as Timespan from './timespan.js';
 import { assert, clone, forKeys, hasOwnProperty, keys, removeAt, splitOn, spread } from './utils.js';
 
+/*
+{
+  dayLength: xx,
+  dayCount: xx,
+  activities: {
+    pattern: {
+      slots: {
+        a: {
+          activity: 'activity 1',
+          preferredTime: xx,
+          minimumTime: xx,
+          maximumTime: xx
+        },
+        ...
+      },
+      requires: [
+        // if one of a, b, or c is included, the others must be as well.
+        ['a', 'b', 'c']
+      ],
+      excludes: [
+        // if one of x, y, or z is included, the others must not be.
+        ['x', 'y', 'z']
+      ],
+      nonoptional:
+        // c will always be included. since it requires a & b, they will, too.
+        'c'
+      ],
+      once: {
+        // range [ss,ee) relative to the day's start will always be activity 1.
+        'ss:ee': 'activity 1'
+      }
+    },
+    // or more than one pattern. `patterns: [...],`
+    once: {
+      // range [ss,ee) will be activity 1. patterns will work around it.
+      'ss:ee': 'activity 1'
+    },
+    // if specified, overrides the array of patterns.
+    // this would map `patterns: [a, b, c]` to `[a, b, b, a]`.
+    week: [0, 1, 1, 0]
+  }
+}
+*/
+
 export function schedule({ dayLength, dayCount, activities }) {
   dayLength = dayLength|0;
   dayCount = dayCount|0;
@@ -14,11 +58,19 @@ export function schedule({ dayLength, dayCount, activities }) {
   let requiresExcludes = Array(patternCount);
   for(let patternIndex = 0; patternIndex < patternCount; ++patternIndex) {
     const pattern = patterns[patternIndex];
-    pattern.requires.forEach(x => x.forEach(y => assert(pattern.slots[y],
-        "Can't require nonexistent slot \"",y,"\"!")));
-    pattern.excludes.forEach(x => x.forEach(y => assert(pattern.slots[y],
-        "Can't exclude nonexistent slot \"",y,"\"!")));
-    requiresExcludes[patternIndex] = pattern && {
+    if(!pattern) {
+      requiresExcludes[patternIndex] = undefined;
+      continue;
+    }
+    if(pattern.requires) {
+      pattern.requires.forEach(x => x.forEach(y => assert(pattern.slots[y],
+          "Can't require nonexistent slot \"",y,"\"!")));
+    }
+    if(pattern.excludes) {
+      pattern.excludes.forEach(x => x.forEach(y => assert(pattern.slots[y],
+          "Can't exclude nonexistent slot \"",y,"\"!")));
+    }
+    requiresExcludes[patternIndex] = {
       requires: spread(pattern.requires),
       excludes: spread(pattern.excludes)
     };
@@ -234,7 +286,9 @@ export function schedule({ dayLength, dayCount, activities }) {
         requirements && requirements.forEach(add);
       };
       
-      nonoptional.forEach(add);
+      if(nonoptional) {
+        nonoptional.forEach(add);
+      }
       assert(minimumTime <= dayLength,
              "Non-optional slots add up to at least ", minimumTime,
              "; day length is only ", dayLength, "!");

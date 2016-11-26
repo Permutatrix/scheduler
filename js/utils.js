@@ -54,6 +54,9 @@ export function splitOn(str, delimiter) {
 }
 
 export function spread(array) {
+  if(!array) {
+    return {};
+  }
   const out = {};
   for(let i = 0, leni = array.length; i < leni; ++i) {
     const items = array[i];
@@ -68,4 +71,5 @@ export function spread(array) {
       }
     }
   }
+  return out;
 }
