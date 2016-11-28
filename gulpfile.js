@@ -159,7 +159,11 @@ gulp.task('js-minified', function() {
   .pipe(buffer())
   .pipe(babel({ presets: ['es2015-minimal'] }))
   .pipe(iife())
-  .pipe(uglify())
+  .pipe(uglify({
+    mangle: {
+      except: ['createASM']
+    }
+  }))
   .pipe(gulp.dest('./dist'));
 });
 
