@@ -38,32 +38,9 @@ function rollupPlugins(options) {
         if(importee === 'ractive') {
           return nodeResolve().resolveId('ractive/src/Ractive.js', importer);
         }
-        
         if(importee === 'is-debug-build') {
           return importee;
         }
-        
-        function isFile(fname) {
-          try {
-            return fs.lstatSync(fname).isFile();
-          } catch(e) {
-            return false;
-          }
-        }
-        
-        if(!importer) return;
-        var position = importer.replace(/\\/g, '/').indexOf(ractiveSrc);
-        if(position === -1) return;
-        
-        var out = path.resolve(path.dirname(importer), importee);
-        if(isFile(out)) return out;
-        out += '.js';
-        if(isFile(out)) return out;
-        
-        out = path.resolve(importer.slice(0, position + ractiveSrc.length), importee);
-        if(isFile(out)) return out;
-        out += '.js';
-        if(isFile(out)) return out;
       },
       load: function(id) {
         if(id === 'is-debug-build') {
@@ -77,7 +54,7 @@ function rollupPlugins(options) {
         if(/legacy\.js|_parse\.js|_Triple\.js/.test(id)) {
           return 'export default null;';
         }
-        if(/(Ractive\.js|utils\/log\.js)$/.test(id)) {
+        if(/(Ractive\.js|utils[\/\\]log\.js)$/.test(id)) {
           return source.replace(/<@version@>/g, require('ractive/package.json').version);
         }
       }
