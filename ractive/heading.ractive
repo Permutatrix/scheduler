@@ -1,13 +1,13 @@
 {{#if level == 1}}
-  <h1 class="h">{{> content}}</h1>
+  <h1>{{> content}}</h1>
 {{elseif level == 2}}
-  <h2 class="h">{{> content}}</h2>
+  <h2>{{> content}}</h2>
 {{elseif level == 3}}
-  <h3 class="h">{{> content}}</h3>
+  <h3>{{> content}}</h3>
 {{elseif level == 4}}
-  <h4 class="h">{{> content}}</h4>
+  <h4>{{> content}}</h4>
 {{elseif level == 5}}
-  <h5 class="h">{{> content}}</h5>
+  <h5>{{> content}}</h5>
 {{else}}
-  <h6 class="h">{{> content}}</h6>
+  <h6>{{> content}}</h6>
 {{/if}}
