@@ -1,3 +1,9 @@
+@mixin heading {
+  .h {
+    @content;
+  }
+}
+
 body {
   background-color: red;
 }

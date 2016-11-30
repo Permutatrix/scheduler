@@ -1,3 +1,11 @@
-<div>
-  XYZZY, my {{friend}}.
-</div>
+{{> timespan }}
+
+{{#partial timespan}}
+  <div class="timespan">
+    {{#each days}}
+      <section class="day">
+        <Heading>Heading!</Heading>
+      </section>
+    {{/each}}
+  </div>
+{{/partial}}
