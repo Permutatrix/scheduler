@@ -16,8 +16,6 @@ var ractive = require('rollup-plugin-ractive');
 
 var del = require('del');
 var httpServer = require('http-server');
-var path = require('path');
-var fs = require('fs');
 
 
 var jsSrc = ['./js/**/*.js', './ractive/**/*.ractive'];
