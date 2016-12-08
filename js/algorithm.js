@@ -24,7 +24,7 @@ import { assert, clone, forKeys, hasOwnProperty, keys, removeAt, splitOn, spread
         // if one of x, y, or z is included, the others must not be.
         ['x', 'y', 'z']
       ],
-      nonoptional:
+      nonoptional: [
         // c will always be included. since it requires a & b, they will, too.
         'c'
       ],
