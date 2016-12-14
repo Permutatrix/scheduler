@@ -38,10 +38,12 @@
       {{ activity }}
     </span>
     {{#with (slots[i + 1] || { start: dayLength }).start - start as slotLength}}
-      <span class="duration"
-            style-bottom="{{ (dayLength - slotLength) * slotHeight }}px">
-        {{ formatDuration(slotLength) }}
-      </span>
+      {{#if slotLength > 1}}
+        <span class="duration"
+              style-bottom="{{ (dayLength - slotLength) * slotHeight }}px">
+          {{ formatDuration(slotLength) }}
+        </span>
+      {{/if}}
     {{/with}}
   </li>
 {{/partial}}

@@ -140,16 +140,16 @@ html {
         span {
           position: absolute;
           display: inline-block;
-          max-width: 100%;
           padding: $cell-padding;
+          left: 0; right: 0;
           
           &.activity {
             top: 0;
-            left: 0;
+            text-align: left;
           }
           
           &.duration {
-            right: 0;
+            text-align: right;
           }
         }
       }
