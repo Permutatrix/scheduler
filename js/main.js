@@ -2,8 +2,8 @@ import './algorithm.js';
 import * as Backbone from './backbone.js';
 import Ractive from 'ractive';
 import Ractbone from './ractive-adaptors-backbone.js';
-import MainView from '../ractive/main.ractive';
-import Heading from '../ractive/heading.ractive';
+import MainView from '../view/main.ractive';
+import Heading from '../view/heading.ractive';
 import isDebugBuild from 'is-debug-build';
 
 Ractive.DEBUG = isDebugBuild;
