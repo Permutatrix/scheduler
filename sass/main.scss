@@ -1,9 +1,156 @@
+// Fonts
+  $font-family: Arial, sans-serif;
+  $font-size: 13px;
+// Colors
+  $text-color: black;
+  $white-text-color: white;
+  $border-color: black;
+  $grid-line-color: rgba(0,0,0,0.15);
+// Lengths
+  $cell-padding: 0 3px;
+  $border-width: 1px; // currently duplicated twice in main.ractive
+// Convenience
+  $border-style: $border-width solid $border-color;
+
 @mixin heading {
   h1, h2, h3, h4, h5, h6 {
     @content;
   }
 }
 
-body {
-  background-color: red;
+@include heading {
+  margin: 0;
+  font-weight: bold;
+  font-size: 1em;
+  line-height: normal;
+}
+
+html {
+  font-family: $font-family;
+  font-size: $font-size;
+}
+
+%no-select {
+  /* http://stackoverflow.com/a/4407335/5482384 */
+  
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
+}
+
+%column {
+  @extend %no-select;
+  
+  display: inline-block;
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  vertical-align: bottom;
+  
+  li {
+    position: absolute;
+    left: 0;
+    right: 0;
+    padding: $cell-padding;
+  }
+  
+  > span {
+    display: block;
+    position: absolute;
+    left: 0; right: 0;
+    top: 0; bottom: 0;
+    background-image: linear-gradient(to top, $grid-line-color, $grid-line-color $border-width, transparent $border-width, transparent);
+    background-repeat: repeat;
+  }
+}
+
+.timespan {
+  .hours {
+    @extend %column;
+    overflow: hidden;
+    border: $border-style;
+    border-right: none;
+    background-color: #eee;
+    
+    li {
+      text-align: right;
+      background-color: white;
+      
+      &::after {
+        content: '';
+        display: block;
+        margin-bottom: -$border-width;
+      }
+    }
+  }
+  
+  .day {
+    display: inline-block;
+    border: $border-style;
+    border-right: none;
+    border-bottom: none;
+    
+    &:last-child {
+      border-right: $border-style;
+    }
+    
+    > :first-child {
+      /* the heading is the first child. :P */
+      text-align: center;
+      border-bottom: $border-style;
+      overflow: hidden;
+      white-space: nowrap;
+      
+      &::after {
+        content: ' ';
+        white-space: pre;
+        display: inline-block;
+        width: 0;
+      }
+    }
+    
+    .slots {
+      @extend %column;
+      
+      width: 100%;
+      overflow: hidden;
+      border-bottom: $border-style;
+      
+      li {
+        height: 100%;
+        border-top: $border-style;
+        margin-top: -$border-width;
+        
+        &:first-child {
+          border: none;
+          margin: 0;
+        }
+        
+        &.white-text {
+          color: $white-text-color;
+        }
+        
+        span {
+          position: absolute;
+          display: inline-block;
+          max-width: 100%;
+          padding: $cell-padding;
+          
+          &.activity {
+            top: 0;
+            left: 0;
+          }
+          
+          &.duration {
+            right: 0;
+          }
+        }
+      }
+    }
+  }
 }
