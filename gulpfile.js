@@ -13,7 +13,6 @@ var csso = require('gulp-csso');
 
 var nodeResolve = require('rollup-plugin-node-resolve');
 var ractive = require('rollup-plugin-ractive');
-var json = require('rollup-plugin-json');
 
 var del = require('del');
 var fs = require('fs');
@@ -67,22 +66,26 @@ function rollupPlugins(options) {
         }
       },
       transform: function(source, id) {
-        if(!id || id.indexOf(ractiveSrc) === -1) {
+        if(!id) {
           return;
         }
-        if(/legacy\.js|_parse\.js|_Triple\.js/.test(id)) {
-          return 'export default null;';
+        if(/\.json$/i.test(id)) {
+          return 'export default ' + source;
         }
-        if(/(Ractive\.js|utils[\/\\]log\.js)$/.test(id)) {
-          return source.replace(/<@version@>/g, require('ractive/package.json').version);
+        if(id.indexOf(ractiveSrc) !== -1) {
+          if(/legacy\.js|_parse\.js|_Triple\.js/.test(id)) {
+            return 'export default null;';
+          }
+          if(/(Ractive\.js|utils[\/\\]log\.js)$/.test(id)) {
+            return source.replace(/<@version@>/g, require('ractive/package.json').version);
+          }
         }
       }
     },
     nodeResolve(),
     ractive({
       extensions: ['.ractive']
-    }),
-    json()
+    })
   ];
 }
 
