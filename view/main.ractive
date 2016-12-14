@@ -7,7 +7,7 @@
     <Heading>Timespan</Heading>
     <ol class="hours"
         style-width="{{ hoursWidth }}px"
-        style-height="{{ slotHeight * dayLength - 1 }}px">
+        style-height="{{ slotHeight * dayLength - parameters['border-width-in-px'] }}px">
       {{#each hours:i}}
         <li style-top="{{ i * slotHeight * dayLength / hours.length }}px">
           {{.}}
@@ -21,7 +21,7 @@
 {{#partial day}}
   <section class="day" style-width="{{ width || dayWidth }}px">
     <Heading>{{ name }}</Heading>
-    <ol class="slots" style-height="{{ slotHeight * dayLength - 1 }}px">
+    <ol class="slots" style-height="{{ slotHeight * dayLength - parameters['border-width-in-px'] }}px">
       {{#each slots:i}}
         {{> slot level+1 as level}}
       {{/each}}

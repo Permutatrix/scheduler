@@ -1,3 +1,5 @@
+@import 'parameters';
+
 // Fonts
   $font-family: Arial, sans-serif;
   $font-size: 13px;
@@ -8,7 +10,7 @@
   $grid-line-color: rgba(0,0,0,0.15);
 // Lengths
   $cell-padding: 0 3px;
-  $border-width: 1px; // currently duplicated twice in main.ractive
+  $border-width: $border-width-in-px * 1px;
 // Convenience
   $border-style: $border-width solid $border-color;
 
