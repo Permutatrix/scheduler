@@ -9,8 +9,8 @@
     <Heading>Timespan</Heading>
     <ol class="hours" style-width="{{ hoursWidth }}px">
       {{#each hours:i}}
-        <li style-top="{{ i * slotHeight * dayLength / hours.length }}px">
-          {{.}}
+        <li style---slot-index="{{ start }}">
+          {{ name }}
         </li>
       {{/each}}
     </ol>{{#each days}}{{> day level+1 as level}}{{/each}}
@@ -22,26 +22,22 @@
     <Heading>{{ name }}</Heading>
     <ol class="slots">
       {{#each slots:i}}
-        {{> slot level+1 as level}}
+        {{#with (slots[i + 1] || { start: dayLength }).start - start as slotLength}}
+          {{> slot level+1 as level}}
+        {{/with}}
       {{/each}}
     </ol>
   </section>
 {{/partial}}
 
 {{#partial slot}}
-  <li style-top="{{ start * slotHeight }}px"
+  <li style---slot-index="{{ start }}"
+      style---slot-length="{{ slotLength }}"
       style-background-color="{{ cssColorFromRGB(color) }}"
       class-white-text="{{ perceivedBrightnessSquared(color) < 0.25 }}">
-    <span class="activity">
-      {{ activity }}
-    </span>
-    {{#with (slots[i + 1] || { start: dayLength }).start - start as slotLength}}
-      {{#if slotLength > 1}}
-        <span class="duration"
-              style-bottom="{{ (dayLength - slotLength) * slotHeight }}px">
-          {{ formatDuration(slotLength) }}
-        </span>
-      {{/if}}
-    {{/with}}
+    <span class="activity">{{ activity }}</span>
+    {{#if slotLength > 1}}
+      <span class="duration">{{ formatDuration(slotLength) }}</span>
+    {{/if}}
   </li>
 {{/partial}}

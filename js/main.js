@@ -26,11 +26,18 @@ window.addEventListener('load', function() {
       },
       
       level: 1,
-      hoursWidth: 30,
+      hoursWidth: 40,
       dayWidth: 150,
       slotHeight: 20,
       dayLength: 24,
-      hours: [0, 4, 8, 12, 16, 20],
+      hours: [
+        { start: 0, name: '0:00' },
+        { start: 4, name: '4:00' },
+        { start: 8, name: '8:00' },
+        { start: 12, name: '12:00' },
+        { start: 16, name: '16:00' },
+        { start: 20, name: '20:00' }
+      ],
       days: [
         {
           name: 'Day 1',
