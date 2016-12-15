@@ -21,10 +21,10 @@
 }
 
 @include heading {
-  margin: 0;
-  font-weight: bold;
   font-size: 1em;
+  font-weight: bold;
   line-height: normal;
+  margin: 0;
 }
 
 html {
@@ -40,32 +40,35 @@ html {
      -khtml-user-select: none; /* Konqueror */
        -moz-user-select: none; /* Firefox */
         -ms-user-select: none; /* Internet Explorer/Edge */
-            user-select: none; /* Non-prefixed version, currently
-                                  not supported by any browser */
+            user-select: none;
 }
 
 %column {
   @extend %no-select;
   
-  display: inline-block;
   position: relative;
   list-style: none;
+  
+  display: inline-block;
   margin: 0;
   padding: 0;
   vertical-align: bottom;
   
   li {
     position: absolute;
-    left: 0;
-    right: 0;
+    left: 0; right: 0;
     padding: $cell-padding;
   }
   
   > span {
+    /* grid lines. also captures clicks. */
+    /* I plan to replace this with a pseudo-element and CSS variables ASAP. */
+    
     display: block;
     position: absolute;
     left: 0; right: 0;
     top: 0; bottom: 0;
+    
     background-image: linear-gradient(to top, $grid-line-color, $grid-line-color $border-width, transparent $border-width, transparent);
     background-repeat: repeat;
   }
@@ -74,16 +77,20 @@ html {
 .timespan {
   .hours {
     @extend %column;
-    overflow: hidden;
+    
     border: $border-style;
     border-right: none;
+    overflow: hidden;
+    
     background-color: #eee;
     
     li {
-      text-align: right;
       background-color: white;
+      text-align: right;
       
       &::after {
+        /* hack to shrink the element vertically by $border-width so it will
+           fit between the grid lines. */
         content: '';
         display: block;
         margin-bottom: -$border-width;
@@ -93,9 +100,10 @@ html {
   
   .day {
     display: inline-block;
+    
     border: $border-style;
-    border-right: none;
     border-bottom: none;
+    border-right: none;
     
     &:last-child {
       border-right: $border-style;
@@ -103,15 +111,19 @@ html {
     
     > :first-child {
       /* the heading is the first child. :P */
-      text-align: center;
+      
       border-bottom: $border-style;
       overflow: hidden;
-      white-space: nowrap;
+      text-align: center;
       
+      /* make sure it's always exactly one line tall. for bonus points, do so
+         in the worst way possible. */
+      white-space: nowrap;
       &::after {
+        /* see, this will prevent vertical collapsing when there's no text. */
         content: ' ';
-        white-space: pre;
         display: inline-block;
+        white-space: pre;
         width: 0;
       }
     }
@@ -119,37 +131,36 @@ html {
     .slots {
       @extend %column;
       
+      border-bottom: $border-style;
       width: 100%;
       overflow: hidden;
-      border-bottom: $border-style;
       
       li {
         height: 100%;
-        border-top: $border-style;
-        margin-top: -$border-width;
         
-        &:first-child {
-          border: none;
-          margin: 0;
-        }
+        border-top: $border-style;
+        /* border should sit on top instead of pushing everything down. */
+        margin-top: -$border-width;
         
         &.white-text {
           color: $white-text-color;
         }
         
         span {
-          position: absolute;
           display: inline-block;
           padding: $cell-padding;
+          
+          position: absolute;
           left: 0; right: 0;
           
           &.activity {
-            top: 0;
             text-align: left;
+            top: 0;
           }
           
           &.duration {
             text-align: right;
+            /* bottom is specified by JavaScript. */
           }
         }
       }
