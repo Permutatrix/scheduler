@@ -1,5 +1,3 @@
-@import 'parameters';
-
 // Fonts
   $font-family: Arial, sans-serif;
   $font-size: 13px;
@@ -10,7 +8,7 @@
   $grid-line-color: rgba(0,0,0,0.15);
 // Lengths
   $cell-padding: 0 3px;
-  $border-width: $border-width-in-px * 1px;
+  $border-width: 1px;
   $slot-height: var(--slot-height);
 // Convenience
   $border-style: $border-width solid $border-color;
@@ -51,7 +49,7 @@ html {
   list-style: none;
   
   display: inline-block;
-  height: var(--column-height);
+  height: calc(#{$slot-height} * var(--day-length) - #{$border-width});
   margin: 0;
   padding: 0;
   vertical-align: bottom;

@@ -4,7 +4,6 @@ import Ractive from 'ractive';
 import Ractbone from './ractive-adaptors-backbone.js';
 import MainView from '../view/main.ractive';
 import Heading from '../view/heading.ractive';
-import parameters from '../view/parameters.json';
 import isDebugBuild from 'is-debug-build';
 
 Ractive.DEBUG = isDebugBuild;
@@ -26,7 +25,6 @@ window.addEventListener('load', function() {
         return '' + duration;
       },
       
-      parameters,
       level: 1,
       hoursWidth: 30,
       dayWidth: 150,

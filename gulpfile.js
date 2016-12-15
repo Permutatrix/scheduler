@@ -19,31 +19,12 @@ var fs = require('fs');
 var httpServer = require('http-server');
 
 
-var jsSrc = ['./js/**/*.js', './view/**/*.ractive', './view/parameters.json'];
-var sassSrc = ['./view/**/*.scss', './view/parameters.json'];
+var jsSrc = ['./js/**/*.js', './view/**/*.ractive'];
+var sassSrc = './view/**/*.scss';
 var assetsSrc = ['./assets/**/*', './bower_components/underscore/underscore-min.js'];
 
 var jsEntry = './js/main.js';
 var sassEntry = './view/main.scss';
-
-
-var sassImporter = function(url, prev, done) {
-  if(url === 'parameters') {
-    fs.readFile('./view/parameters.json', 'utf8', function(err, data) {
-      if(err) {
-        done(err);
-      }
-      var parameters = JSON.parse(data);
-      var source = '';
-      for(param in parameters) {
-        source += '$' + param + ': ' + parameters[param] + ';\n';
-      }
-      done({ contents: source });
-    });
-  } else {
-    done(null);
-  }
-};
 
 
 var ractiveSrc = '/ractive/src/';
@@ -68,9 +49,6 @@ function rollupPlugins(options) {
       transform: function(source, id) {
         if(!id) {
           return;
-        }
-        if(/\.json$/i.test(id)) {
-          return 'export default ' + source;
         }
         if(id.indexOf(ractiveSrc) !== -1) {
           if(/legacy\.js|_parse\.js|_Triple\.js/.test(id)) {
@@ -110,10 +88,7 @@ gulp.task('js', function() {
 
 gulp.task('css', function() {
   return gulp.src(sassEntry)
-  .pipe(sass({
-    importer: sassImporter
-  })
-  .on('error', sass.logError))
+  .pipe(sass().on('error', sass.logError))
   .pipe(gulp.dest('./dist'));
 });
 
@@ -172,10 +147,7 @@ gulp.task('js-minified', function() {
 
 gulp.task('css-minified', function() {
   return gulp.src(sassEntry)
-  .pipe(sass({
-    importer: sassImporter
-  })
-  .on('error', sass.logError))
+  .pipe(sass().on('error', sass.logError))
   .pipe(csso())
   .pipe(gulp.dest('./dist'));
 });

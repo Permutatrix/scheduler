@@ -5,7 +5,7 @@
 {{#partial timespan}}
   <section class="timespan"
            style---slot-height="{{ slotHeight }}px"
-           style---column-height="{{ slotHeight * dayLength - parameters['border-width-in-px'] }}px">
+           style---day-length="{{ dayLength }}">
     <Heading>Timespan</Heading>
     <ol class="hours" style-width="{{ hoursWidth }}px">
       {{#each hours:i}}
