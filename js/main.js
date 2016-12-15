@@ -28,7 +28,6 @@ window.addEventListener('load', function() {
       level: 1,
       hoursWidth: 40,
       dayWidth: 150,
-      slotHeight: 20,
       dayLength: 24,
       hours: [
         { start: 0, name: '0:00' },

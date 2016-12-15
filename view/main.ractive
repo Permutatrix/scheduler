@@ -3,9 +3,7 @@
 {{/if}}
 
 {{#partial timespan}}
-  <section class="timespan"
-           style---slot-height="{{ slotHeight }}px"
-           style---day-length="{{ dayLength }}">
+  <section class="timespan" style---day-length="{{ dayLength }}">
     <Heading>Timespan</Heading>
     <ol class="hours" style-width="{{ hoursWidth }}px">
       {{#each hours:i}}
