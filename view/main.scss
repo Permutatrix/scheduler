@@ -125,10 +125,8 @@ html {
       white-space: nowrap;
       &::after {
         /* see, this will prevent vertical collapsing when there's no text. */
-        content: ' ';
+        content: '';
         display: inline-block;
-        white-space: pre;
-        width: 0;
       }
     }
     
