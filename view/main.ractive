@@ -3,17 +3,16 @@
 {{/if}}
 
 {{#partial timespan}}
-  <section class="timespan" style-line-height="{{ slotHeight }}px">
+  <section class="timespan"
+           style---slot-height="{{ slotHeight }}px"
+           style---column-height="{{ slotHeight * dayLength - parameters['border-width-in-px'] }}px">
     <Heading>Timespan</Heading>
-    <ol class="hours"
-        style-width="{{ hoursWidth }}px"
-        style-height="{{ slotHeight * dayLength - parameters['border-width-in-px'] }}px">
+    <ol class="hours" style-width="{{ hoursWidth }}px">
       {{#each hours:i}}
         <li style-top="{{ i * slotHeight * dayLength / hours.length }}px">
           {{.}}
         </li>
       {{/each}}
-      <span style-background-size="1px {{ slotHeight }}px"><!-- This sucks! --></span>
     </ol>{{#each days}}{{> day level+1 as level}}{{/each}}
   </section>
 {{/partial}}
@@ -21,11 +20,10 @@
 {{#partial day}}
   <section class="day" style-width="{{ width || dayWidth }}px">
     <Heading>{{ name }}</Heading>
-    <ol class="slots" style-height="{{ slotHeight * dayLength - parameters['border-width-in-px'] }}px">
+    <ol class="slots">
       {{#each slots:i}}
         {{> slot level+1 as level}}
       {{/each}}
-      <span style-background-size="1px {{ slotHeight }}px"><!-- This sucks more! --></span>
     </ol>
   </section>
 {{/partial}}

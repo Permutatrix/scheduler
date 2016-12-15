@@ -11,6 +11,7 @@
 // Lengths
   $cell-padding: 0 3px;
   $border-width: $border-width-in-px * 1px;
+  $slot-height: var(--slot-height);
 // Convenience
   $border-style: $border-width solid $border-color;
 
@@ -50,6 +51,7 @@ html {
   list-style: none;
   
   display: inline-block;
+  height: var(--column-height);
   margin: 0;
   padding: 0;
   vertical-align: bottom;
@@ -60,21 +62,24 @@ html {
     padding: $cell-padding;
   }
   
-  > span {
+  &::after {
     /* grid lines. also captures clicks. */
-    /* I plan to replace this with a pseudo-element and CSS variables ASAP. */
     
+    content: '';
     display: block;
     position: absolute;
     left: 0; right: 0;
     top: 0; bottom: 0;
     
     background-image: linear-gradient(to top, $grid-line-color, $grid-line-color $border-width, transparent $border-width, transparent);
+    background-size: 1px $slot-height;
     background-repeat: repeat;
   }
 }
 
 .timespan {
+  line-height: $slot-height;
+  
   .hours {
     @extend %column;
     
