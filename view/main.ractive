@@ -1,10 +1,10 @@
 {{#with timespan}}
   {{#if days.length > 0}}
-    {{> timespan}}
+    {{> Timespan}}
   {{/if}}
 {{/with}}
 
-{{#partial timespan}}
+{{#partial Timespan}}
   <section class="timespan" style---day-length="{{ dayLength }}">
     <Heading>Timespan</Heading>
     <ol class="hours" style-width="{{ hoursWidth }}px">
@@ -13,24 +13,24 @@
           {{ name }}
         </li>
       {{/each}}
-    </ol>{{#each days}}{{> day level+1 as level}}{{/each}}
+    </ol>{{#each days}}{{> Day level+1 as level}}{{/each}}
   </section>
 {{/partial}}
 
-{{#partial day}}
+{{#partial Day}}
   <section class="day" style-width="{{ width || dayWidth }}px">
     <Heading>{{ name }}</Heading>
     <ol class="slots">
       {{#each slots:i}}
         {{#with (slots[i + 1] || { start: dayLength }).start - start as slotLength}}
-          {{> slot level+1 as level}}
+          {{> Slot level+1 as level}}
         {{/with}}
       {{/each}}
     </ol>
   </section>
 {{/partial}}
 
-{{#partial slot}}
+{{#partial Slot}}
   <li style---slot-index="{{ start }}"
       style---slot-length="{{ slotLength }}"
       style-background-color="{{ cssColorFromRGB(color) }}"
