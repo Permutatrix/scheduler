@@ -144,6 +144,9 @@ html {
         /* border should sit on top instead of pushing everything down. */
         margin-top: -$border-width;
         
+        /* establish a new stacking context. */
+        z-index: 0;
+        
         &.white-text {
           color: $white-text-color;
         }
@@ -158,6 +161,10 @@ html {
           &.activity {
             text-align: left;
             top: 0;
+            
+            /* cover up the duration if there's only one slot. */
+            z-index: 1;
+            background-color: inherit;
           }
           
           &.duration {

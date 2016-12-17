@@ -34,8 +34,6 @@
       style-background-color="{{ cssColorFromRGB(color) }}"
       class-white-text="{{ perceivedBrightnessSquared(color) < 0.25 }}">
     <span class="activity">{{ activity }}</span>
-    {{#if slotLength > 1}}
-      <span class="duration">{{ formatDuration(slotLength) }}</span>
-    {{/if}}
+    <span class="duration">{{ formatDuration(slotLength) }}</span>
   </li>
 {{/partial}}
