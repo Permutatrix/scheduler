@@ -1,7 +1,5 @@
 import './algorithm.js';
-import * as Backbone from './backbone.js';
 import Ractive from 'ractive';
-import Ractbone from './ractive-adaptors-backbone.js';
 import MainView from '../view/main.ractive';
 import Heading from '../view/heading.ractive';
 import isDebugBuild from 'is-debug-build';
@@ -22,7 +20,7 @@ window.addEventListener('load', function() {
         return 0.299*r*r + 0.587*g*g + 0.114*b*b;
       },
       formatDuration(duration) {
-        return '' + duration;
+        return duration + 'h';
       },
       
       level: 1,
@@ -60,7 +58,6 @@ window.addEventListener('load', function() {
     },
     components: {
       Heading
-    },
-    adapt: [Ractbone]
+    }
   });
 });

@@ -21,7 +21,7 @@ var httpServer = require('http-server');
 
 var jsSrc = ['./js/**/*.js', './view/**/*.ractive'];
 var sassSrc = './view/**/*.scss';
-var assetsSrc = ['./assets/**/*', './bower_components/underscore/underscore-min.js'];
+var assetsSrc = './assets/**/*';
 
 var jsEntry = './js/main.js';
 var sassEntry = './view/main.scss';
