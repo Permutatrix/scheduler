@@ -40,7 +40,19 @@ import { assert, clone, forKeys, hasOwnProperty, keys, removeAt, splitOn, spread
     },
     // if specified, overrides the array of patterns.
     // this would map `patterns: [a, b, c]` to `[a, b, b, a]`.
-    week: [0, 1, 1, 0]
+    week: [0, 1, 1, 0],
+    timeSpentSoFar: {
+      'activity 1': 12,
+      'activity 2': 17,
+      ...
+    },
+    allotments: {
+      // the algorithm will attempt to allocate about two-thirds as much time
+      // to activity 1 as to activity 2.
+      'activity 1': 2,
+      'activity 2': 3,
+      ...
+    }
   }
 }
 */
@@ -54,7 +66,7 @@ export function schedule({ dayLength, dayCount, activities }) {
   
   const length = dayLength * dayCount, timespan = Timespan.create(length);
   let patterns = activities.patterns || [activities.pattern];
-  const patternCount = Math.min(patterns.length, dayCount);
+  let patternCount = Math.min(patterns.length, dayCount);
   let requiresExcludes = Array(patternCount);
   for(let patternIndex = 0; patternIndex < patternCount; ++patternIndex) {
     const pattern = patterns[patternIndex];
@@ -79,6 +91,7 @@ export function schedule({ dayLength, dayCount, activities }) {
   if(week) {
     patterns = week.map(x => patterns[x]);
     requiresExcludes = week.map(x => requiresExcludes[x]);
+    patternCount = Math.min(patterns.length, dayCount);
   }
   const timeSpentSoFar = clone(activities.timeSpentSoFar);
   const allotments = {};
@@ -373,6 +386,7 @@ export function schedule({ dayLength, dayCount, activities }) {
       
       break;
       // Wipe emptyDay before retrying if fail/retry is implemented.
+      // Also restore timeSpentSoFar.
     }
   }
   
