@@ -1,6 +1,8 @@
-{{#if days.length > 0}}
-  {{> timespan}}
-{{/if}}
+{{#with timespan}}
+  {{#if days.length > 0}}
+    {{> timespan}}
+  {{/if}}
+{{/with}}
 
 {{#partial timespan}}
   <section class="timespan" style---day-length="{{ dayLength }}">
