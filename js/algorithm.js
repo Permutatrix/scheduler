@@ -217,22 +217,26 @@ export function schedule({ dayLength, dayCount, activities }) {
       continue;
     }
     forKeys(pattern.once, (name, activity) => {
-      const { start, end } = splitOn(name, ':');
+      const { startS, endS } = splitOn(name, ':');
+      const start = +startS, end = +endS;
       timespan.overwrite({
-        from: Math.max(+start, 0) + dayIndex * dayLength,
-        to: Math.min(+end, dayLength) + dayIndex * dayLength,
+        from: Math.max(start, 0) + dayIndex * dayLength,
+        to: Math.min(end, dayLength) + dayIndex * dayLength,
         activity
       });
+      timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + (end - start);
     });
   }
   
   forKeys(activities.once, (name, activity) => {
-    const { start, end } = splitOn(name, ':');
+    const { startS, endS } = splitOn(name, ':');
+    const start = +startS, end = +endS;
     timespan.overwrite({
-      from: +start,
-      to: +end,
+      from: start,
+      to: end,
       activity
     });
+    timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + (end - start);
   });
   
   for(let dayIndex = 0; dayIndex < dayCount; ++dayIndex) {
