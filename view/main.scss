@@ -1,15 +1,15 @@
 // Fonts
   $font-family: Arial, sans-serif;
-  $font-size: 13px;
+  $font-size: 13.33333px;
 // Colors
   $text-color: black;
   $white-text-color: white;
   $border-color: black;
   $grid-line-color: rgba(0,0,0,0.15);
 // Lengths
-  $cell-padding: 0 3px;
+  $cell-padding: 0 0.25rem;
   $border-width: 1px;
-  $slot-height: 20px;
+  $slot-height: 1.5rem;
 // Convenience
   $border-style: $border-width solid $border-color;
 
@@ -94,6 +94,8 @@ html {
   .hours {
     @extend %column;
     
+    min-width: 2.5rem;
+    
     border: $border-style;
     border-right: none;
     overflow: hidden;
@@ -116,6 +118,7 @@ html {
   
   .day {
     display: inline-block;
+    min-width: 5.5rem;
     
     border: $border-style;
     border-bottom: none;
