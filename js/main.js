@@ -1,7 +1,10 @@
 import './algorithm.js';
 import Ractive from 'ractive';
 import MainView from '../view/main.ractive';
+
 import Heading from '../view/heading.ractive';
+import ClampedNumber from './decorators/clamped-number.js';
+
 import isDebugBuild from 'is-debug-build';
 
 Ractive.DEBUG = isDebugBuild;
@@ -24,6 +27,40 @@ window.addEventListener('load', function() {
       },
       
       level: 1,
+      inputs: {
+        dayCount: 7,
+        slotsPerDay: 48,
+        activities: [
+          {
+            name: 'activity 1',
+            color: '#DDDDDD',
+            allotment: 1,
+            timeSpentSoFar: 0
+          }
+        ],
+        patterns: [
+          {
+            slots: [
+              {
+                activity: 0,
+                preferredTime: 2,
+                minimumTime: 2,
+                maximumTime: 4
+              }
+            ],
+            requires: [
+              [0]
+            ],
+            excludes: [
+              [0]
+            ],
+            nonoptional: [0],
+            once: []
+          }
+        ],
+        week: [],
+        once: []
+      },
       timespan: {
         hoursWidth: 40,
         dayWidth: 150,
@@ -60,6 +97,9 @@ window.addEventListener('load', function() {
     },
     components: {
       Heading
+    },
+    decorators: {
+      ClampedNumber
     }
   });
 });

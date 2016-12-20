@@ -31,6 +31,18 @@ html {
   font-size: $font-size;
 }
 
+.inputs {
+  margin-bottom: 1em;
+  
+  input {
+    font-size: 1em;
+    
+    &[type="number"] {
+      width: 4em;
+    }
+  }
+}
+
 %no-select {
   /* http://stackoverflow.com/a/4407335/5482384 */
   

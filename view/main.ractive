@@ -1,8 +1,28 @@
+{{#with inputs}}
+  {{> Inputs}}
+{{/with}}
+
 {{#with timespan}}
   {{#if days.length > 0}}
     {{> Timespan}}
   {{/if}}
 {{/with}}
+
+
+{{#partial Inputs}}
+  <section class="inputs">
+    <Heading>Inputs</Heading>
+    <label>
+      Number of days:
+      <input as-ClampedNumber min="1" type="number" value="{{ dayCount }}" />
+    </label>
+    <label>
+      Slots per day:
+      <input as-ClampedNumber min="1" type="number" value="{{ slotsPerDay }}" />
+    </label>
+  </section>
+{{/partial}}
+
 
 {{#partial Timespan}}
   <section class="timespan" style---day-length="{{ dayLength }}">
