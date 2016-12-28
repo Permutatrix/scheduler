@@ -16,7 +16,11 @@ window.addEventListener('load', function() {
     el: document.body,
     data: {
       cssColorFromRGB({ r, g, b }) {
-        return `rgb(${(r * 255)|0}, ${(g * 255)|0}, ${(b * 255)|0})`;
+        function convert(v) {
+          return Math.round(v * 255);
+        }
+        
+        return `rgb(${convert(r)}, ${convert(g)}, ${convert(b)})`;
       },
       perceivedBrightnessSquared({ r, g, b }) {
         // http://alienryderflex.com/hsp.html
