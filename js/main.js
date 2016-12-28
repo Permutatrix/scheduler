@@ -39,8 +39,8 @@ window.addEventListener('load', function() {
             name: 'activity 1',
             color: '#DDDDDD',
             allotment: 1,
-            timeSpentSoFar: 0
-          }
+            timeSpentSoFar: 0,
+          },
         ],
         patterns: [
           {
@@ -49,21 +49,21 @@ window.addEventListener('load', function() {
                 activity: 0,
                 preferredTime: 2,
                 minimumTime: 2,
-                maximumTime: 4
-              }
+                maximumTime: 4,
+              },
             ],
             requires: [
-              [0]
+              [0],
             ],
             excludes: [
-              [0]
+              [0],
             ],
             nonoptional: [0],
-            once: []
-          }
+            once: [],
+          },
         ],
         week: [],
-        once: []
+        once: [],
       },
       timespan: {
         hoursWidth: 40,
@@ -75,7 +75,7 @@ window.addEventListener('load', function() {
           { start: 8, name: '8:00' },
           { start: 12, name: '12:00' },
           { start: 16, name: '16:00' },
-          { start: 20, name: '20:00' }
+          { start: 20, name: '20:00' },
         ],
         days: [
           {
@@ -86,24 +86,24 @@ window.addEventListener('load', function() {
               { start: 6, color: { r: 0, g: 1, b: 0 }, activity: "C" },
               { start: 9, color: { r: 0, g: 1, b: 1 }, activity: "D" },
               { start: 18, color: { r: 0, g: 0, b: 1 }, activity: "E" },
-              { start: 22, color: { r: 1, g: 0, b: 1 }, activity: "F" }
-            ]
+              { start: 22, color: { r: 1, g: 0, b: 1 }, activity: "F" },
+            ],
           },
           {
             slots: [
               { start: 0, color: { r: 1, g: 0, b: 0 }, activity: "Z" },
               { start: 9, color: { r: 0, g: 1, b: 0 }, activity: "Y" },
               { start: 15, color: { r: 0, g: 0, b: 1 }, activity: "X" },
-            ]
-          }
-        ]
-      }
+            ],
+          },
+        ],
+      },
     },
     components: {
-      Heading
+      Heading,
     },
     decorators: {
-      ClampedNumber
-    }
+      ClampedNumber,
+    },
   });
 });

@@ -58,12 +58,12 @@ function rollupPlugins(options) {
             return source.replace(/<@version@>/g, require('ractive/package.json').version);
           }
         }
-      }
+      },
     },
     nodeResolve(),
     ractive({
-      extensions: ['.ractive']
-    })
+      extensions: ['.ractive'],
+    }),
   ];
 }
 
@@ -72,7 +72,7 @@ gulp.task('js', function() {
   return rollup({
     entry: jsEntry,
     cache: cache,
-    plugins: rollupPlugins({ debug: true })
+    plugins: rollupPlugins({ debug: true }),
   })
   .on('bundle', function(module) {
     cache = module;
@@ -128,7 +128,7 @@ gulp.task('default', ['js', 'css', 'assets']);
 gulp.task('js-minified', function() {
   return rollup({
     entry: jsEntry,
-    plugins: rollupPlugins({ debug: false })
+    plugins: rollupPlugins({ debug: false }),
   })
   .on('error', function(e) {
     console.error(e.stack);
@@ -139,8 +139,8 @@ gulp.task('js-minified', function() {
   .pipe(iife())
   .pipe(uglify({
     mangle: {
-      except: ['createASM']
-    }
+      except: ['createASM'],
+    },
   }))
   .pipe(gulp.dest('./dist'));
 });

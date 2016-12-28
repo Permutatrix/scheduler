@@ -59,7 +59,7 @@ export function create(length) {
           return activityForId[id];
         }
       }
-    }
+    },
   };
 }
 
@@ -423,6 +423,6 @@ function createASM(stdlib, foreign, buffer) {
     overwritePeriodically: overwritePeriodically,
     findStartOf: findStartOf,
     findEnd: findEnd,
-    findStart: findStart
+    findStart: findStart,
   };
 }

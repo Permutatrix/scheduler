@@ -12,31 +12,31 @@ import { assert, clone, forKeys, hasOwnProperty, keys, removeAt, splitOn, spread
           activity: 'activity 1',
           preferredTime: xx,
           minimumTime: xx,
-          maximumTime: xx
+          maximumTime: xx,
         },
         ...
       },
       requires: [
         // if one of a, b, or c is included, the others must be as well.
-        ['a', 'b', 'c']
+        ['a', 'b', 'c'],
       ],
       excludes: [
         // if one of x, y, or z is included, the others must not be.
-        ['x', 'y', 'z']
+        ['x', 'y', 'z'],
       ],
       nonoptional: [
         // c will always be included. since it requires a & b, they will, too.
-        'c'
+        'c',
       ],
       once: {
         // range [ss,ee) relative to the day's start will always be activity 1.
-        'ss:ee': 'activity 1'
-      }
+        'ss:ee': 'activity 1',
+      },
     },
     // or more than one pattern. `patterns: [...],`
     once: {
       // range [ss,ee) will be activity 1. patterns will work around it.
-      'ss:ee': 'activity 1'
+      'ss:ee': 'activity 1',
     },
     // if specified, overrides the array of patterns.
     // this would map `patterns: [a, b, c]` to `[a, b, b, a]`.
@@ -52,8 +52,8 @@ import { assert, clone, forKeys, hasOwnProperty, keys, removeAt, splitOn, spread
       'activity 1': 2,
       'activity 2': 3,
       ...
-    }
-  }
+    },
+  },
 }
 */
 
@@ -84,7 +84,7 @@ export function schedule({ dayLength, dayCount, activities }) {
     }
     requiresExcludes[patternIndex] = {
       requires: spread(pattern.requires),
-      excludes: spread(pattern.excludes)
+      excludes: spread(pattern.excludes),
     };
   }
   const week = activities.week;
@@ -167,7 +167,7 @@ export function schedule({ dayLength, dayCount, activities }) {
               timespan.overwrite({
                 from: block.from,
                 to: block.from += length,
-                activity: activity
+                activity: activity,
               });
               timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + length;
               return 0;
@@ -175,7 +175,7 @@ export function schedule({ dayLength, dayCount, activities }) {
               timespan.overwrite({
                 from: block.from,
                 to: block.to,
-                activity: activity
+                activity: activity,
               });
               length -= blockLength;
               timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + blockLength;
@@ -186,12 +186,12 @@ export function schedule({ dayLength, dayCount, activities }) {
         clone() {
           return buildDay(blocks.map(block => ({
             from: block.from,
-            to: block.to
+            to: block.to,
           })));
         },
         wipe() {
           blocks.forEach(timespan.overwrite);
-        }
+        },
       };
     })(blocks);
   }
@@ -206,7 +206,7 @@ export function schedule({ dayLength, dayCount, activities }) {
       to: to - shift,
       period: dayLength,
       cycles: dayCount + 1,
-      activity
+      activity,
     });
   });
   */
@@ -222,7 +222,7 @@ export function schedule({ dayLength, dayCount, activities }) {
       timespan.overwrite({
         from: Math.max(start, 0) + dayIndex * dayLength,
         to: Math.min(end, dayLength) + dayIndex * dayLength,
-        activity
+        activity,
       });
       timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + (end - start);
     });
@@ -234,7 +234,7 @@ export function schedule({ dayLength, dayCount, activities }) {
     timespan.overwrite({
       from: start,
       to: end,
-      activity
+      activity,
     });
     timeSpentSoFar[activity] = (timeSpentSoFar[activity]|0) + (end - start);
   });
@@ -316,7 +316,7 @@ export function schedule({ dayLength, dayCount, activities }) {
           preferredTime,
           includedSlots: includedSlots.slice(),
           pendingSlots: pendingSlots.slice(),
-          numberOfSlotsForActivity: clone(numberOfSlotsForActivity)
+          numberOfSlotsForActivity: clone(numberOfSlotsForActivity),
         };
         
         let newSlot;
@@ -333,7 +333,7 @@ export function schedule({ dayLength, dayCount, activities }) {
             preferredTime,
             includedSlots,
             pendingSlots,
-            numberOfSlotsForActivity
+            numberOfSlotsForActivity,
           } = previous);
           exclude(newSlot);
         }
@@ -346,7 +346,7 @@ export function schedule({ dayLength, dayCount, activities }) {
       const unallocatedSlots = includedSlots.map(slot => ({
         slotName: slot,
         slotObj: slots[slot],
-        time: slot.preferredTime
+        time: slot.preferredTime,
       }));
       let bleed = 0;
       while(unallocatedSlots.length) {

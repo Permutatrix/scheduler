@@ -29,6 +29,6 @@ export default function ClampedNumber(node) {
   return {
     teardown() {
       node.removeEventListener('blur', blurHandler, false);
-    }
+    },
   };
 }
