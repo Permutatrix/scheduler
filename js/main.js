@@ -27,7 +27,7 @@ window.addEventListener('load', function() {
         return 0.299*r*r + 0.587*g*g + 0.114*b*b;
       },
       formatDuration(duration) {
-        return duration + 'h';
+        return duration + "h";
       },
       
       level: 1,
@@ -36,7 +36,7 @@ window.addEventListener('load', function() {
         slotsPerDay: 48,
         activities: [
           {
-            name: 'activity 1',
+            name: "activity 1",
             color: '#DDDDDD',
             allotment: 1,
             timeSpentSoFar: 0,
@@ -44,6 +44,7 @@ window.addEventListener('load', function() {
         ],
         patterns: [
           {
+            name: "pattern 1",
             slots: [
               {
                 activity: 0,
@@ -70,12 +71,12 @@ window.addEventListener('load', function() {
         dayWidth: 150,
         dayLength: 24,
         hours: [
-          { start: 0, name: '0:00' },
-          { start: 4, name: '4:00' },
-          { start: 8, name: '8:00' },
-          { start: 12, name: '12:00' },
-          { start: 16, name: '16:00' },
-          { start: 20, name: '20:00' },
+          { start: 0, name: "0:00" },
+          { start: 4, name: "4:00" },
+          { start: 8, name: "8:00" },
+          { start: 12, name: "12:00" },
+          { start: 16, name: "16:00" },
+          { start: 20, name: "20:00" },
         ],
         days: [
           {
