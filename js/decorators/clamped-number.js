@@ -3,7 +3,7 @@ import Ractive from 'ractive';
 export default function ClampedNumber(node) {
   const info = Ractive.getNodeInfo(node);
   if(!info.isBound()) {
-    throw Error("The ClampedInteger decorator only works with two-way bindings!");
+    throw Error("The ClampedNumber decorator only works with two-way bindings!");
   }
   const ractive = info.ractive, keypath = info.getBindingPath();
   
