@@ -77,7 +77,7 @@ window.addEventListener('load', function() {
             once: [],
           },
         ],
-        selectedPattern: null,
+        selectedPattern: -1,
         week: [],
         once: [],
       },
@@ -181,18 +181,22 @@ window.addEventListener('load', function() {
     adjustForX(kp(patternPath, 'nonoptional'), index);
   }
   
-  ractive.on('duplicate-pattern-slot', info => {
+  ractive.on('duplicate-pattern-slot', (info, node) => {
     const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
-    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    // workaround for a bug in Ractive I'll hopefully never have to deal with again
+    const arr = Ractive.getNodeInfo(node.closest('.pattern')).resolve() + '.slots';
+    console.log(arr);
+    const index = +keypath.slice(dot+1);
     const dupe = Object.assign({}, info.get());
     ractive.splice(arr, index + 1, 0, dupe);
     
     adjustForPatternSlot(adjustForInsertion, arr, index + 1);
   });
   
-  ractive.on('remove-pattern-slot', info => {
+  ractive.on('remove-pattern-slot', (info, node) => {
     const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
-    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    const arr = Ractive.getNodeInfo(node.closest('.pattern')).resolve() + '.slots';
+    const index = +keypath.slice(dot+1);
     
     adjustForPatternSlot(adjustForRemoval, arr, index);
     
@@ -222,6 +226,36 @@ window.addEventListener('load', function() {
     const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
     
     adjustForActivity(adjustForRemoval, index);
+    
+    ractive.splice(arr, index, 1);
+  });
+  
+  function adjustForPattern(adjustForX, index) {
+    adjustForX('inputs.week', index);
+    
+    const selectedPattern = ractive.get('inputs.selectedPattern');
+    if(adjustForX === adjustForRemoval && selectedPattern === index) {
+      ractive.set('inputs.selectedPattern', -1);
+    } else if(selectedPattern >= index) {
+      const plus = adjustForX === adjustForRemoval ? -1 : 1;
+      ractive.set('inputs.selectedPattern', selectedPattern + plus);
+    }
+  }
+  
+  ractive.on('duplicate-pattern', info => {
+    const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
+    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    const dupe = JSON.parse(JSON.stringify(info.get()));
+    ractive.splice(arr, index + 1, 0, dupe);
+    
+    adjustForPattern(adjustForInsertion, index + 1);
+  });
+  
+  ractive.on('remove-pattern', info => {
+    const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
+    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    
+    adjustForPattern(adjustForRemoval, index);
     
     ractive.splice(arr, index, 1);
   });

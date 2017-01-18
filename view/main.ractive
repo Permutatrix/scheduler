@@ -53,17 +53,18 @@
 
 {{#partial Patterns}}
   <ul class="patterns">
-    {{#each patterns}}
+    {{#each patterns:i}}
       <li as-Button
-          class-selected="{{ this === selectedPattern }}"
-          on-click="@this.link(@keypath, 'inputs.selectedPattern')">
+          class-selected="{{ i === ~/inputs.selectedPattern }}"
+          on-click="@this.set('inputs.selectedPattern', i)"
+          as-ContextMenu="{ Duplicate: 'duplicate-pattern', Remove: 'remove-pattern' }">
         {{ name }}
       </li>
     {{/each}}
   </ul>
-  {{#with selectedPattern}}
+  {{#with patterns[selectedPattern]}}
     <section class="pattern">
-      <Heading>{{ name }}</Heading>
+      <Heading><DisguisedInput value="{{ name }}" /></Heading>
       {{> PatternSlots level+1 as level}}
     </section>
   {{/with}}

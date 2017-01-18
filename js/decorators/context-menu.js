@@ -3,8 +3,6 @@ import Ractive from 'ractive';
 let idNumber = 0;
 
 export default function ContextMenu(node, items) {
-  const info = Ractive.getNodeInfo(node);
-  
   let id = 'decorator-context-menu-' + (idNumber++);
   
   const menu = document.createElement('menu');
@@ -16,7 +14,8 @@ export default function ContextMenu(node, items) {
       const item = document.createElement('menuitem');
       item.setAttribute('label', label);
       item.addEventListener('click', () => {
-        info.ractive.fire(items[label], info);
+        const info = Ractive.getNodeInfo(node);
+        info.ractive.fire(items[label], info, node);
       });
       menu.appendChild(item);
     }
