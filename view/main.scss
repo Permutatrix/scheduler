@@ -26,6 +26,34 @@
   margin: 0;
 }
 
+menu {
+  display: none;
+}
+
+.white-text {
+  color: $white-text-color;
+}
+
+input[type="color"] {
+  margin: 0;
+  border: none;
+  padding: 0;
+  
+  width: 1em;
+  height: 1em;
+  
+  vertical-align: middle;
+  
+  &::-moz-focus-inner {
+    padding: 0;
+    border: none;
+  }
+  
+  &::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+}
+
 html {
   font-family: $font-family;
   font-size: $font-size;
@@ -36,9 +64,75 @@ html {
   
   input {
     font-size: 1em;
+    color: black;
     
     &[type="number"] {
-      width: 4em;
+      width: 3em;
+    }
+  }
+  
+  > div {
+    margin: 1em 0;
+  }
+  
+  %horizontal-piece {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0;
+    padding: 0;
+  }
+  
+  %listing {
+    @extend %horizontal-piece;
+    
+    list-style: none;
+    
+    li {
+      display: block;
+      margin: 0;
+      border: $border-style;
+      border-top: none;
+      padding: 0.5em;
+      
+      line-height: 1.5;
+      overflow: hidden;
+      
+      &:first-child {
+        border-top: $border-style;
+      }
+    }
+  }
+  
+  .activities {
+    @extend %listing;
+    
+    width: 20rem;
+    
+    li .controls {
+      float: right;
+    }
+  }
+  
+  .patterns {
+    @extend %listing;
+    
+    li {
+      &:nth-child(even) {
+        background-color: #eee;
+      }
+      
+      &.selected {
+        background-color: #26d;
+        color: $white-text-color;
+      }
+    }
+  }
+  
+  .pattern {
+    @extend %horizontal-piece;
+    
+    .slots {
+      @extend %listing;
     }
   }
 }
@@ -161,10 +255,6 @@ html {
         
         /* establish a new stacking context. */
         z-index: 0;
-        
-        &.white-text {
-          color: $white-text-color;
-        }
         
         span {
           display: block;

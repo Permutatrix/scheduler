@@ -1,0 +1,13 @@
+{{#if ~/selected}}
+  <select value="{{ i }}" on-blur="@this.set('selected', false)" on-change="@this.set('selected', false)" as-PreSelected>
+    {{#each values:i}}
+      <option value="{{ i }}">{{> content}}</option>
+    {{/each}}
+  </select>
+{{else}}
+  <span as-Button on-click="@this.set('selected', true)" tabindex="0">
+    {{#with values[i]}}
+      {{> content}}
+    {{/with}}
+  </span>
+{{/if}}

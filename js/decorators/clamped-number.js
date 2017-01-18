@@ -8,15 +8,15 @@ export default function ClampedNumber(node) {
   const ractive = info.ractive, keypath = info.getBindingPath();
   
   function blurHandler() {
-    const value = this.value ? +this.value : NaN;
-    const min = this.getAttribute('min'), minN = (+min) || 0;
-    const max = this.getAttribute('max'), maxN = (+max) || 0;
+    const value = node.value ? +node.value : NaN;
+    const min = node.getAttribute('min'), minN = (+min) || 0;
+    const max = node.getAttribute('max'), maxN = (+max) || 0;
     if(min && value < minN) {
       ractive.set(keypath, minN);
     } else if(max && value > maxN) {
       ractive.set(keypath, maxN);
     } else {
-      const step = (+this.getAttribute('step')) || 1;
+      const step = (+node.getAttribute('step')) || 1;
       const trunc = Math.round(value / step) * step;
       if(value !== trunc) {
         ractive.set(keypath, value === value ? trunc : minN);
@@ -26,9 +26,17 @@ export default function ClampedNumber(node) {
   
   node.addEventListener('blur', blurHandler, false);
   
+  const observer = new MutationObserver(blurHandler);
+  
+  observer.observe(node, {
+    attributes: true,
+    attributeFilter: ['min', 'max', 'step'],
+  });
+  
   return {
     teardown() {
       node.removeEventListener('blur', blurHandler, false);
+      observer.disconnect();
     },
   };
 }

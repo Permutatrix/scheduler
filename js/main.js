@@ -3,7 +3,15 @@ import Ractive from 'ractive';
 import MainView from '../view/main.ractive';
 
 import Heading from '../view/heading.ractive';
+import DisguisedInput from '../view/disguised-input.ractive';
+import DisguisedSelect from '../view/disguised-select.ractive';
+
 import ClampedNumber from './decorators/clamped-number.js';
+import RGB from './decorators/rgb.js';
+import Label from './decorators/label.js';
+import PreSelected from './decorators/pre-selected.js';
+import Button from './decorators/button.js';
+import ContextMenu from './decorators/context-menu.js';
 
 import isDebugBuild from 'is-debug-build';
 
@@ -22,9 +30,9 @@ window.addEventListener('load', function() {
         
         return `rgb(${convert(r)}, ${convert(g)}, ${convert(b)})`;
       },
-      perceivedBrightnessSquared({ r, g, b }) {
+      isDark({ r, g, b }) {
         // http://alienryderflex.com/hsp.html
-        return 0.299*r*r + 0.587*g*g + 0.114*b*b;
+        return (0.299*r*r + 0.587*g*g + 0.114*b*b) < 0.25;
       },
       formatDuration(duration) {
         return duration + "h";
@@ -37,8 +45,14 @@ window.addEventListener('load', function() {
         activities: [
           {
             name: "activity 1",
-            color: '#DDDDDD',
+            color: { r: 0.85, g: 0.85, b: 0.85 },
             allotment: 1,
+            timeSpentSoFar: 0,
+          },
+          {
+            name: "activity 2",
+            color: { r: 0.2, g: 0.3, b: 0.9 },
+            allotment: 2,
             timeSpentSoFar: 0,
           },
         ],
@@ -63,6 +77,7 @@ window.addEventListener('load', function() {
             once: [],
           },
         ],
+        selectedPattern: null,
         week: [],
         once: [],
       },
@@ -102,9 +117,112 @@ window.addEventListener('load', function() {
     },
     components: {
       Heading,
+      DisguisedInput,
+      DisguisedSelect,
     },
     decorators: {
       ClampedNumber,
+      RGB,
+      Label,
+      PreSelected,
+      Button,
+      ContextMenu,
     },
+  });
+  
+  function kp(out) {
+    for(let i = 1; i < arguments.length; ++i) {
+      out += '.';
+      out += arguments[i];
+    }
+    return out;
+  }
+  
+  function adjustForRemoval(keypath, index, propertyName) {
+    const array = ractive.get(keypath);
+    for(let i = 0; i < array.length; ++i) {
+      const v = propertyName ? array[i][propertyName] : array[i];
+      if(v === index) {
+        ractive.splice(keypath, i--, 1);
+      } else if(v > index) {
+        if(propertyName) {
+          ractive.set(kp(keypath, i, propertyName), v - 1);
+        } else {
+          ractive.set(kp(keypath, i), v - 1);
+        }
+      }
+    }
+  }
+  
+  function adjustForInsertion(keypath, index, propertyName) {
+    const array = ractive.get(keypath);
+    for(let i = 0; i < array.length; ++i) {
+      const v = propertyName ? array[i][propertyName] : array[i];
+      if(v >= index) {
+        if(propertyName) {
+          ractive.set(kp(keypath, i, propertyName), v + 1);
+        } else {
+          ractive.set(kp(keypath, i), v + 1);
+        }
+      }
+    }
+  }
+  
+  function adjustForPatternSlot(adjustForX, arr, index) {
+    const patternPath = arr.slice(0, arr.lastIndexOf('.'));
+    const requiresCount = ractive.get(kp(patternPath, 'requires')).length;
+    for(let i = 0; i < requiresCount; ++i) {
+      adjustForX(kp(patternPath, 'requires', i), index);
+    }
+    const excludesCount = ractive.get(kp(patternPath, 'excludes')).length;
+    for(let i = 0; i < excludesCount; ++i) {
+      adjustForX(kp(patternPath, 'excludes', i), index);
+    }
+    adjustForX(kp(patternPath, 'nonoptional'), index);
+  }
+  
+  ractive.on('duplicate-pattern-slot', info => {
+    const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
+    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    const dupe = Object.assign({}, info.get());
+    ractive.splice(arr, index + 1, 0, dupe);
+    
+    adjustForPatternSlot(adjustForInsertion, arr, index + 1);
+  });
+  
+  ractive.on('remove-pattern-slot', info => {
+    const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
+    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    
+    adjustForPatternSlot(adjustForRemoval, arr, index);
+    
+    ractive.splice(arr, index, 1);
+  });
+  
+  function adjustForActivity(adjustForX, index) {
+    const patternCount = ractive.get('inputs.patterns').length;
+    for(let i = 0; i < patternCount; ++i) {
+      adjustForX(kp('inputs.patterns', i, 'slots'), index, 'activity');
+      adjustForX(kp('inputs.patterns', i, 'once'), index, 'activity');
+    }
+    adjustForX('inputs.once', index, 'activity');
+  }
+  
+  ractive.on('duplicate-activity', info => {
+    const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
+    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    const dupe = Object.assign({}, info.get());
+    ractive.splice(arr, index + 1, 0, dupe);
+    
+    adjustForActivity(adjustForInsertion, index + 1);
+  });
+  
+  ractive.on('remove-activity', info => {
+    const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
+    const arr = keypath.slice(0, dot), index = +keypath.slice(dot+1);
+    
+    adjustForActivity(adjustForRemoval, index);
+    
+    ractive.splice(arr, index, 1);
   });
 });

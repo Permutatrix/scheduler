@@ -14,13 +14,89 @@
     <Heading>Inputs</Heading>
     <label>
       Number of days:
-      <input as-ClampedNumber min="1" type="number" value="{{ dayCount }}" />
+      <input type="number" as-ClampedNumber min="1" value="{{ dayCount }}" />
     </label>
     <label>
       Slots per day:
-      <input as-ClampedNumber min="1" type="number" value="{{ slotsPerDay }}" />
+      <input type="number" as-ClampedNumber min="1" value="{{ slotsPerDay }}" />
     </label>
+    <div>
+      {{> Activities level+1 as level}}
+      {{> Patterns level+1 as level}}
+    </div>
   </section>
+{{/partial}}
+
+{{#partial Activities}}
+  <ul class="activities">
+    {{#each activities}}
+      <li style-background-color="{{ cssColorFromRGB(color) }}"
+          class-white-text="{{ isDark(color) }}"
+          as-ContextMenu="{ Duplicate: 'duplicate-activity', Remove: 'remove-activity' }">
+        <DisguisedInput value="{{ name }}" />
+        <span class="controls">
+          <input type="number" as-ClampedNumber min="0"
+                 value="{{ timeSpentSoFar }}"
+                 as-Label="'time spent so far'" />
+          /
+          <input type="number" as-ClampedNumber min="1"
+                 value="{{ allotment }}"
+                 as-Label="'allotment'" />
+          
+          <input type="color" as-RGB="'color'"
+                 as-Label="'color'" />
+        </span>
+      </li>
+    {{/each}}
+  </ul>
+{{/partial}}
+
+{{#partial Patterns}}
+  <ul class="patterns">
+    {{#each patterns}}
+      <li as-Button
+          class-selected="{{ this === selectedPattern }}"
+          on-click="@this.link(@keypath, 'inputs.selectedPattern')">
+        {{ name }}
+      </li>
+    {{/each}}
+  </ul>
+  {{#with selectedPattern}}
+    <section class="pattern">
+      <Heading>{{ name }}</Heading>
+      {{> PatternSlots level+1 as level}}
+    </section>
+  {{/with}}
+{{/partial}}
+
+{{#partial PatternSlots}}
+  <ol class="slots">
+    {{#each slots}}
+      <li style-background-color="{{ cssColorFromRGB(~/inputs.activities[activity].color) }}"
+          class-white-text="{{ isDark(~/inputs.activities[activity].color) }}"
+          as-ContextMenu="{ Duplicate: 'duplicate-pattern-slot', Remove: 'remove-pattern-slot' }">
+        <DisguisedSelect values="{{ ~/inputs.activities }}" i="{{ activity }}">
+          {{ name }}
+        </DisguisedSelect>
+        <span class="controls">
+          <input type="number" as-ClampedNumber
+                 min="0" max="{{ maximumTime }}"
+                 value="{{ minimumTime }}"
+                 as-Label="'minimum time'" />
+          &le;
+          <input type="number" as-ClampedNumber
+                 min="{{ minimumTime }}" max="{{ maximumTime }}"
+                 value="{{ preferredTime }}"
+                 as-Label="'preferred time'" />
+          &le;
+          <input type="number" as-ClampedNumber
+                 min="{{ minimumTime }}"
+                 value="{{ maximumTime }}"
+                 as-Label="'maximum time'" />
+        </span>
+      </li>
+    {{/each}}
+  </ol>
 {{/partial}}
 
 
@@ -54,7 +130,7 @@
   <li style---slot-index="{{ start }}"
       style---slot-length="{{ slotLength }}"
       style-background-color="{{ cssColorFromRGB(color) }}"
-      class-white-text="{{ perceivedBrightnessSquared(color) < 0.25 }}">
+      class-white-text="{{ isDark(color) }}">
     <span class="activity">{{ activity }}</span>
     <span class="duration">{{ formatDuration(slotLength) }}</span>
   </li>

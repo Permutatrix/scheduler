@@ -1,0 +1,5 @@
+{{#if ~/selected}}
+  <input type="text" value="{{ value }}" on-blur="@this.set('selected', false)" on-keypress="/^(Enter|Escape)$/.test(event.original.key) ? @this.set('selected', false) : true" as-PreSelected />
+{{else}}
+  <span as-Button on-click="@this.set('selected', true)">{{ value }}</span>
+{{/if}}
