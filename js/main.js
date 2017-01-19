@@ -65,6 +65,7 @@ window.addEventListener('load', function() {
                 preferredTime: 2,
                 minimumTime: 2,
                 maximumTime: 4,
+                optional: true,
               },
             ],
             requires: [
@@ -73,7 +74,6 @@ window.addEventListener('load', function() {
             excludes: [
               [0],
             ],
-            nonoptional: [0],
             once: [],
           },
         ],
@@ -178,7 +178,6 @@ window.addEventListener('load', function() {
     for(let i = 0; i < excludesCount; ++i) {
       adjustForX(kp(patternPath, 'excludes', i), index);
     }
-    adjustForX(kp(patternPath, 'nonoptional'), index);
   }
   
   ractive.on('duplicate-pattern-slot', (info, node) => {
@@ -201,6 +200,10 @@ window.addEventListener('load', function() {
     adjustForPatternSlot(adjustForRemoval, arr, index);
     
     ractive.splice(arr, index, 1);
+  });
+  
+  ractive.on('toggle-pattern-slot-optional', info => {
+    info.toggle('optional');
   });
   
   function adjustForActivity(adjustForX, index) {

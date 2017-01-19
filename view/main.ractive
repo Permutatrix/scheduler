@@ -75,7 +75,8 @@
     {{#each slots}}
       <li style-background-color="{{ cssColorFromRGB(~/inputs.activities[activity].color) }}"
           class-white-text="{{ isDark(~/inputs.activities[activity].color) }}"
-          as-ContextMenu="{ Duplicate: 'duplicate-pattern-slot', Remove: 'remove-pattern-slot' }">
+          class-non-optional="{{ !optional }}"
+          as-ContextMenu="{ Duplicate: 'duplicate-pattern-slot', Remove: 'remove-pattern-slot' }, optional ? { 'Make Mandatory': 'toggle-pattern-slot-optional' } : { 'Make Optional': 'toggle-pattern-slot-optional' }">
         <DisguisedSelect values="{{ ~/inputs.activities }}" i="{{ activity }}">
           {{ name }}
         </DisguisedSelect>

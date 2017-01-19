@@ -1,3 +1,7 @@
+@function stripes($angle, $color-1, $color-2, $spacing) {
+  @return repeating-linear-gradient($angle, $color-1, $color-1 $spacing, $color-2 $spacing, $color-2 $spacing * 2);
+}
+
 // Fonts
   $font-family: Arial, sans-serif;
   $font-size: 13.33334px;
@@ -10,6 +14,8 @@
   $cell-padding: 0 0.25rem;
   $border-width: 1px;
   $slot-height: 1.5rem;
+// Images
+  $pin-stripe: stripes(-45deg, rgba(255,255,255,0.1), rgba(0,0,0,0.1), 8px);
 // Convenience
   $border-style: $border-width solid $border-color;
 
@@ -133,6 +139,20 @@ html {
     
     .slots {
       @extend %listing;
+      
+      li.non-optional {
+        position: relative;
+        z-index: 0;
+        
+        &::before {
+          content: '';
+          z-index: -1;
+          position: absolute;
+          left: 0; right: 0;
+          top: 0; bottom: 0;
+          background-image: $pin-stripe;
+        }
+      }
     }
   }
 }
