@@ -1,5 +1,7 @@
 @function stripes($angle, $color-1, $color-2, $spacing) {
-  @return repeating-linear-gradient($angle, $color-1, $color-1 $spacing, $color-2 $spacing, $color-2 $spacing * 2);
+  // 1 physical pixel transition for antialiased edges
+  @return repeating-linear-gradient($angle, $color-1, $color-1 calc(#{$spacing} - var(--physical-pixel)), $color-2 $spacing, $color-2 calc(#{$spacing * 2} - var(--physical-pixel)), $color-1 $spacing * 2);
+//@return repeating-linear-gradient($angle, $color-1, $color-1 $spacing, $color-2 $spacing, $color-2 $spacing * 2);
 }
 
 // Fonts
@@ -30,6 +32,10 @@
   font-weight: bold;
   line-height: normal;
   margin: 0;
+}
+
+body {
+  --physical-pixel: 1px;
 }
 
 menu {

@@ -20,6 +20,17 @@ Ractive.DEBUG = isDebugBuild;
 import * as Timespan from './timespan.js';
 
 window.addEventListener('load', function() {
+  let dpr = 0;
+  function onResize() {
+    const newDPR = window.devicePixelRatio || 1;
+    if(newDPR !== dpr) {
+      dpr = newDPR;
+      document.body.style.setProperty('--physical-pixel', (1 / newDPR) + 'px');
+    }
+  }
+  onResize();
+  window.addEventListener('resize', onResize);
+  
   const ractive = window.rct = new MainView({
     el: document.body,
     data: {
