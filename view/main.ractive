@@ -56,7 +56,7 @@
     {{#each patterns:i}}
       <li as-Button
           class-selected="{{ i === ~/inputs.selectedPattern }}"
-          on-click="@this.set('inputs.selectedPattern', i)"
+          on-click="@this.set('inputs.selectedPattern', i), @this.fire('refresh-loobls')"
           as-ContextMenu="{ Duplicate: 'duplicate-pattern', Remove: 'remove-pattern' }">
         {{ name }}
       </li>
@@ -66,6 +66,16 @@
     <section class="pattern">
       <Heading><DisguisedInput value="{{ name }}" /></Heading>
       {{> PatternSlots level+1 as level}}
+      <div class="requires-excludes">
+        <section class="requires">
+          <Heading level="{{ level + 1 }}">Requires</Heading>
+          <textarea as-ListOfOneBasedLists="'requires'"></textarea>
+        </section>
+        <section class="excludes">
+          <Heading level="{{ level + 1 }}">Excludes</Heading>
+          <textarea as-ListOfOneBasedLists="'excludes'"></textarea>
+        </section>
+      </div>
     </section>
   {{/with}}
 {{/partial}}

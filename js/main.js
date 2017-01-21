@@ -12,6 +12,7 @@ import Label from './decorators/label.js';
 import PreSelected from './decorators/pre-selected.js';
 import Button from './decorators/button.js';
 import ContextMenu from './decorators/context-menu.js';
+import { default as ListOfOneBasedLists, refresh as refreshLOOBLs } from './decorators/list-of-one-based-lists.js';
 
 import isDebugBuild from 'is-debug-build';
 
@@ -138,6 +139,7 @@ window.addEventListener('load', function() {
       PreSelected,
       Button,
       ContextMenu,
+      ListOfOneBasedLists,
     },
   });
   
@@ -195,7 +197,6 @@ window.addEventListener('load', function() {
     const keypath = info.resolve(), dot = keypath.lastIndexOf('.');
     // workaround for a bug in Ractive I'll hopefully never have to deal with again
     const arr = Ractive.getNodeInfo(node.closest('.pattern')).resolve() + '.slots';
-    console.log(arr);
     const index = +keypath.slice(dot+1);
     const dupe = Object.assign({}, info.get());
     ractive.splice(arr, index + 1, 0, dupe);
@@ -273,4 +274,6 @@ window.addEventListener('load', function() {
     
     ractive.splice(arr, index, 1);
   });
+  
+  ractive.on('refresh-loobls', refreshLOOBLs);
 });
