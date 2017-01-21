@@ -74,17 +74,39 @@ window.addEventListener('load', function() {
             slots: [
               {
                 activity: 0,
-                preferredTime: 2,
-                minimumTime: 2,
-                maximumTime: 4,
+                preferredTime: 6,
+                minimumTime: 1,
+                maximumTime: 12,
+                optional: true,
+              },
+              {
+                activity: 1,
+                preferredTime: 6,
+                minimumTime: 1,
+                maximumTime: 12,
+                optional: true,
+              },
+              {
+                activity: 0,
+                preferredTime: 6,
+                minimumTime: 1,
+                maximumTime: 12,
+                optional: true,
+              },
+              {
+                activity: 1,
+                preferredTime: 6,
+                minimumTime: 1,
+                maximumTime: 12,
                 optional: true,
               },
             ],
             requires: [
-              [0],
+              
             ],
             excludes: [
-              [0],
+              [0, 2],
+              [1, 3],
             ],
             once: [],
           },
@@ -275,7 +297,14 @@ window.addEventListener('load', function() {
     ractive.splice(arr, index, 1);
   });
   
-  ractive.on('refresh-loobls', refreshLOOBLs);
+  ractive.on('select-pattern', i => {
+    if(ractive.get('inputs.selectedPattern') === i) {
+      ractive.set('inputs.selectedPattern', -1);
+    } else {
+      ractive.set('inputs.selectedPattern', i);
+      refreshLOOBLs();
+    }
+  });
   
   ractive.on('generate-schedule', () => {
     const timeSpentSoFar = {}, allotments = {}, colors = {};
@@ -339,7 +368,10 @@ window.addEventListener('load', function() {
       });
       time = dayEnd;
     }
+    const { hoursWidth, dayWidth } = ractive.get('timespan');
     ractive.set('timespan', {
+      hoursWidth,
+      dayWidth,
       dayLength: ractive.get('inputs.slotsPerDay'),
       hours: [],
       days,

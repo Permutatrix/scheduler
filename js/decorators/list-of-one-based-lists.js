@@ -6,7 +6,7 @@ function encodeList(list) {
 }
 
 function decodeList(list) {
-  return list.split('\n').map(list => list.split(',').map(x => parseInt(x.trim(), 10) - 1));
+  return list.split('\n').map(list => list.split(',').map(x => parseInt(x.trim(), 10) - 1).filter(x => x === x));
 }
 
 const inAction = [];

@@ -190,6 +190,7 @@ export function schedule({ dayLength, dayCount, activities }) {
           })));
         },
         wipe() {
+          // TODO: clean up timeSpentSoFar
           blocks.forEach(timespan.overwrite);
         },
       };
@@ -271,14 +272,14 @@ export function schedule({ dayLength, dayCount, activities }) {
       let includedSlots = [], pendingSlots = [], numberOfSlotsForActivity = {};
       forKeys(slots, (key, value) => {
         pendingSlots.push(key);
-        numberOfSlotsForActivity[key] = (numberOfSlotsForActivity[key]|0) + 1;
+        numberOfSlotsForActivity[value.activity] = (numberOfSlotsForActivity[value.activity]|0) + 1;
       });
       
       let minimumTime = 0, preferredTime = 0;
       
       const exclude = function exclude(slot) {
         const index = pendingSlots.indexOf(slot);
-        if(index) {
+        if(index !== -1) {
           removeAt(pendingSlots, index);
           numberOfSlotsForActivity[slot] -= 1;
           const requirements = requires[slot];
@@ -323,8 +324,8 @@ export function schedule({ dayLength, dayCount, activities }) {
         do {
           newSlot = pendingSlots[(Math.random() * pendingSlots.length)|0];
         } while(Math.random() >=
-                probabilities[newSlot.activity] /
-                numberOfSlotsForActivity[newSlot.activity]);
+                probabilities[slots[newSlot].activity] /
+                numberOfSlotsForActivity[slots[newSlot].activity]);
         
         add(newSlot);
         if(minimumTime > currentDayLength) {

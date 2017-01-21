@@ -57,7 +57,7 @@
     {{#each patterns:i}}
       <li as-Button
           class-selected="{{ i === ~/inputs.selectedPattern }}"
-          on-click="@this.set('inputs.selectedPattern', i), @this.fire('refresh-loobls')"
+          on-click="@this.fire('select-pattern', i)"
           as-ContextMenu="{ Duplicate: 'duplicate-pattern', Remove: 'remove-pattern' }">
         {{ name }}
       </li>
@@ -93,7 +93,7 @@
         </DisguisedSelect>
         <span class="controls">
           <input type="number" as-ClampedNumber
-                 min="0" max="{{ maximumTime }}"
+                 min="1" max="{{ maximumTime }}"
                  value="{{ minimumTime }}"
                  as-Label="'minimum time'" />
           &le;
