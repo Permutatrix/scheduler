@@ -17,22 +17,25 @@ export function refresh() {
 }
 
 export default function ListOfOneBasedLists(node, propertyName) {
-  const info = Ractive.getNodeInfo(node);
+  const info = Ractive.getNodeInfo(node.closest('.pattern'));
   
   function refresh() {
-    const encoded = encodeList(info.get(propertyName));
-    
-    if(node.value !== encoded) {
-      const currentList = decodeList(node.value);
-      if(!currentList || encodeList(currentList) !== encoded) {
-        node.value = encoded;
-      }
-    }
+    observer.cancel();
+    observer = observe({ init: true });
   }
   inAction.push(refresh);
   
   function observe({ init }) {
-    return info.ractive.observe(info.resolve(propertyName), refresh, { init: init });
+    return info.ractive.observe(info.resolve() + '.' + propertyName, () => {
+      const encoded = encodeList(info.get(propertyName));
+      
+      if(node.value !== encoded) {
+        const currentList = decodeList(node.value);
+        if(!currentList || encodeList(currentList) !== encoded) {
+          node.value = encoded;
+        }
+      }
+    }, { init: init });
   }
   
   let observer = observe({ init: true });
