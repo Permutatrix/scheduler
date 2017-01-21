@@ -142,7 +142,7 @@ export function schedule({ dayLength, dayCount, activities }) {
     const blocks = [];
     let next = from;
     while(true) {
-      const start = timespan.findStartOf({ next, to });
+      const start = timespan.findStartOf({ from: next, to });
       if(start >= to) {
         break;
       }
@@ -263,7 +263,7 @@ export function schedule({ dayLength, dayCount, activities }) {
     });
     
     const emptyDay = createDay(dayIndex * dayLength, dayIndex * dayLength + dayLength);
-    const dayLength = emptyDay.blocks.reduce((l, b) => l + b.to - b.from, 0);
+    const currentDayLength = emptyDay.blocks.reduce((l, b) => l + b.to - b.from, 0);
     
     // This is in a while(true) loop to allow failing and retrying.
     // That isn't currently taken advantage of, so the loop only runs once.
@@ -306,11 +306,11 @@ export function schedule({ dayLength, dayCount, activities }) {
       if(nonoptional) {
         nonoptional.forEach(add);
       }
-      assert(minimumTime <= dayLength,
+      assert(minimumTime <= currentDayLength,
              "Non-optional slots add up to at least ", minimumTime,
-             "; day length is only ", dayLength, "!");
+             "; day length is only ", currentDayLength, "!");
       
-      while(preferredTime < dayLength && pendingSlots.length) {
+      while(preferredTime < currentDayLength && pendingSlots.length) {
         const previous = {
           minimumTime,
           preferredTime,
@@ -327,7 +327,7 @@ export function schedule({ dayLength, dayCount, activities }) {
                 numberOfSlotsForActivity[newSlot.activity]);
         
         add(newSlot);
-        if(minimumTime > dayLength) {
+        if(minimumTime > currentDayLength) {
           ({
             minimumTime,
             preferredTime,
@@ -346,20 +346,20 @@ export function schedule({ dayLength, dayCount, activities }) {
       const unallocatedSlots = includedSlots.map(slot => ({
         slotName: slot,
         slotObj: slots[slot],
-        time: slot.preferredTime,
+        time: slots[slot].preferredTime,
       }));
       let bleed = 0;
       while(unallocatedSlots.length) {
         const currentTime = unallocatedSlots.reduce((t, s) => t + s.time, 0) +
                               allocatedSlots.reduce((t, s) => t + s.time, 0);
-        if(currentTime === dayLength) {
+        if(currentTime === currentDayLength) {
           break;
         }
-        const makeup = (dayLength - currentTime) / unallocatedSlots.length;
+        const makeup = (currentDayLength - currentTime) / unallocatedSlots.length;
         for(let slotIndex = 0; slotIndex < unallocatedSlots.length;) {
           const slot = unallocatedSlots[slotIndex];
           const goalTime = slot.time + makeup + bleed;
-          const actualTime = (slot.time = (goalTime + 0.5)|0);
+          const actualTime = slot.time = (goalTime + 0.5)|0;
           bleed = goalTime - actualTime;
           const { slotObj } = slot;
           if(actualTime > slotObj.maximumTime) {
@@ -381,10 +381,10 @@ export function schedule({ dayLength, dayCount, activities }) {
         slotTimes[slotName] = time;
       });
       
-      forKeys(slots, key => {
+      forKeys(slots, (key, slot) => {
         const time = slotTimes[key];
         if(time) {
-          day.allocate({ length: time, activity: key });
+          day.allocate({ length: time, activity: slot.activity });
         }
       });
       

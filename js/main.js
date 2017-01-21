@@ -1,4 +1,4 @@
-import './algorithm.js';
+import { schedule } from './algorithm.js';
 import Ractive from 'ractive';
 import MainView from '../view/main.ractive';
 
@@ -276,4 +276,73 @@ window.addEventListener('load', function() {
   });
   
   ractive.on('refresh-loobls', refreshLOOBLs);
+  
+  ractive.on('generate-schedule', () => {
+    const timeSpentSoFar = {}, allotments = {}, colors = {};
+    const activities = ractive.get('inputs.activities');
+    activities.forEach(({ name, color, allotment, timeSpentSoFar: tssf }) => {
+      timeSpentSoFar[name] = tssf;
+      allotments[name] = allotment;
+      colors[name] = color;
+    });
+    const options = {
+      patterns: ractive.get('inputs.patterns').map(pattern => {
+        const patternSlots = pattern.slots, slots = {}, nonoptional = [];
+        for(let i = 0; i < patternSlots.length; ++i) {
+          const index = '' + i;
+          const ps = patternSlots[i];
+          slots[index] = {
+            activity: activities[ps.activity].name,
+            preferredTime: ps.preferredTime,
+            minimumTime: ps.minimumTime,
+            maximumTime: ps.maximumTime,
+          };
+          if(!ps.optional) {
+            nonoptional.push(index);
+          }
+        }
+        return {
+          slots,
+          requires: pattern.requires.map(list => list.map(x => '' + x)),
+          excludes: pattern.excludes.map(list => list.map(x => '' + x)),
+          nonoptional,
+          once: {},
+        }
+      }),
+      once: {},
+      timeSpentSoFar,
+      allotments,
+    };
+    const dayLength = ractive.get('inputs.slotsPerDay');
+    const dayCount = ractive.get('inputs.dayCount');
+    const timespan = schedule({
+      dayLength,
+      dayCount,
+      activities: options,
+    });
+    const days = [];
+    for(let time = 0; time < dayLength * dayCount;) {
+      const dayStart = time, dayEnd = time + dayLength;
+      const slots = [];
+      while(time < dayEnd) {
+        const activity = timespan.get(time);
+        slots.push({
+          start: time - dayStart,
+          color: activity ? colors[activity] : { r: 0, g: 0, b: 0 },
+          activity: activity || "",
+        });
+        time = timespan.findEnd({ from: time, to: dayEnd });
+      }
+      days.push({
+        name: "Day " + (time / dayLength),
+        slots,
+      });
+      time = dayEnd;
+    }
+    ractive.set('timespan', {
+      dayLength: ractive.get('inputs.slotsPerDay'),
+      hours: [],
+      days,
+    });
+  });
 });

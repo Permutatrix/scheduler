@@ -24,6 +24,7 @@
       {{> Activities level+1 as level}}
       {{> Patterns level+1 as level}}
     </div>
+    <button on-click="generate-schedule">Schedule!</button>
   </section>
 {{/partial}}
 
@@ -126,7 +127,7 @@
 {{/partial}}
 
 {{#partial Day}}
-  <section class="day" style-width="{{ width || dayWidth }}px">
+  <section class="day" style-width="{{ ~/timespan.dayWidth }}px">
     <Heading>{{ name }}</Heading>
     <ol class="slots">
       {{#each slots:i}}
