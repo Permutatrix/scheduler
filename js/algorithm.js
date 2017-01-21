@@ -251,16 +251,8 @@ export function schedule({ dayLength, dayCount, activities }) {
     
     adjustTimeSpentSoFar();
     const probabilities = {};
-    let greatestProbability = 0;
     forKeys(allotments, (key, allotment) => {
-      const probability = Math.sqrt(allotment) * Math.pow(0.85, timeSpentSoFar[key] * greatestAllotment / allotment);
-      probabilities[key] = probability;
-      if(probability > greatestProbability) {
-        greatestProbability = probability;
-      }
-    });
-    forKeys(probabilities, (key, probability) => {
-      probabilities[key] = probability / greatestProbability;
+      probabilities[key] = Math.sqrt(allotment) * Math.pow(0.85, timeSpentSoFar[key] * greatestAllotment / allotment);
     });
     
     const emptyDay = createDay(dayIndex * dayLength, dayIndex * dayLength + dayLength);
@@ -319,11 +311,18 @@ export function schedule({ dayLength, dayCount, activities }) {
           numberOfSlotsForActivity: clone(numberOfSlotsForActivity),
         };
         
+        let greatestProbability = 0;
+        forKeys(probabilities, (activity, probability) => {
+          if(probability > greatestProbability && pendingSlots.some(key => slots[key].activity === activity)) {
+            greatestProbability = probability;
+          }
+        });
+        
         let newSlot;
         do {
           newSlot = pendingSlots[(Math.random() * pendingSlots.length)|0];
         } while(Math.random() >=
-                probabilities[slots[newSlot].activity] /
+                (probabilities[slots[newSlot].activity] / greatestProbability) /
                 numberOfSlotsForActivity[slots[newSlot].activity]);
         
         add(newSlot);
