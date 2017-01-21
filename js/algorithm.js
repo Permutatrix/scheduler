@@ -252,7 +252,7 @@ export function schedule({ dayLength, dayCount, activities }) {
     adjustTimeSpentSoFar();
     const probabilities = {};
     forKeys(allotments, (key, allotment) => {
-      probabilities[key] = Math.sqrt(allotment) * Math.pow(0.85, timeSpentSoFar[key] * greatestAllotment / allotment);
+      probabilities[key] = allotment * Math.pow(0.85, timeSpentSoFar[key] * greatestAllotment / allotment);
     });
     
     const emptyDay = createDay(dayIndex * dayLength, dayIndex * dayLength + dayLength);
