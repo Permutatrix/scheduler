@@ -146,11 +146,18 @@ html {
     .slots {
       @extend %listing;
       
+      counter-reset: pattern-slot;
+      
+      li::before {
+        counter-increment: pattern-slot;
+        content: counter(pattern-slot) '. ';
+      }
+      
       li.non-optional {
         position: relative;
         z-index: 0;
         
-        &::before {
+        &::after {
           content: '';
           z-index: -1;
           position: absolute;
