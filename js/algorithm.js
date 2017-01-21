@@ -292,7 +292,6 @@ export function schedule({ dayLength, dayCount, activities }) {
         assert(index !== -1, "Slot \"",slot,"\" was not pending!");
         
         removeAt(pendingSlots, index);
-        numberOfSlotsForActivity[slot] -= 1;
         
         includedSlots.push(slot);
         const slotObj = slots[slot];
