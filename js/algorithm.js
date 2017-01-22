@@ -279,8 +279,11 @@ export function schedule({ dayLength, dayCount, activities }) {
         }
       };
       
-      const add = function add(slot) {
+      const add = function add(slot, lenient) {
         const index = pendingSlots.indexOf(slot);
+        if(index === -1 && lenient) {
+          return;
+        }
         assert(index !== -1, "Slot \"",slot,"\" was not pending!");
         
         removeAt(pendingSlots, index);
@@ -292,7 +295,7 @@ export function schedule({ dayLength, dayCount, activities }) {
         
         const requirements = requires[slot], exclusions = excludes[slot];
         exclusions && exclusions.forEach(exclude);
-        requirements && requirements.forEach(add);
+        requirements && requirements.forEach(slot => add(slot, true));
       };
       
       if(nonoptional) {
