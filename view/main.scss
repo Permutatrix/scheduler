@@ -186,7 +186,7 @@ html {
 }
 
 %column {
-  @extend %no-select;
+  //@extend %no-select;
   
   position: relative;
   list-style: none;
