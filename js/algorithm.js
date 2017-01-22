@@ -66,7 +66,7 @@ export function schedule({ dayLength, dayCount, activities }) {
   
   const length = dayLength * dayCount, timespan = Timespan.create(length);
   let patterns = activities.patterns || [activities.pattern];
-  let patternCount = Math.min(patterns.length, dayCount);
+  let patternCount = patterns.length;
   let requiresExcludes = Array(patternCount);
   for(let patternIndex = 0; patternIndex < patternCount; ++patternIndex) {
     const pattern = patterns[patternIndex];
