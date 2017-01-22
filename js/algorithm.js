@@ -68,6 +68,7 @@ export function schedule({ dayLength, dayCount, activities }) {
   let patterns = activities.patterns || [activities.pattern];
   let patternCount = patterns.length;
   let requiresExcludes = Array(patternCount);
+  let patternSlotsInBetween = Array(patternCount);
   for(let patternIndex = 0; patternIndex < patternCount; ++patternIndex) {
     const pattern = patterns[patternIndex];
     if(!pattern) {
@@ -86,11 +87,31 @@ export function schedule({ dayLength, dayCount, activities }) {
       requires: spread(pattern.requires),
       excludes: spread(pattern.excludes),
     };
+    const between = patternSlotsInBetween[patternIndex] = {};
+    const lastForActivity = {};
+    forKeys(pattern.slots, (slot, { activity }) => {
+      const tween = between[slot] = [];
+      const lfa = lastForActivity[activity];
+      if(lfa !== undefined) {
+        tween.push(lfa);
+        between[lfa.sister].push({
+          sister: slot,
+          tweens: lfa.tweens,
+        });
+      }
+      lastForActivity[activity] = { sister: slot, tweens: [] };
+      forKeys(lastForActivity, (otherActivity, lfa) => {
+        if(otherActivity !== activity) {
+          lfa.tweens.push(slot);
+        }
+      });
+    });
   }
   const week = activities.week;
   if(week) {
     patterns = week.map(x => patterns[x]);
     requiresExcludes = week.map(x => requiresExcludes[x]);
+    patternSlotsInBetween = week.map(x => patternSlotsInBetween[x]);
     patternCount = Math.min(patterns.length, dayCount);
   }
   const timeSpentSoFar = clone(activities.timeSpentSoFar);
@@ -247,6 +268,7 @@ export function schedule({ dayLength, dayCount, activities }) {
     }
     
     const { requires, excludes } = requiresExcludes[dayIndex % patternCount];
+    const between = patternSlotsInBetween[dayIndex % patternCount];
     const { slots, nonoptional } = pattern;
     
     adjustTimeSpentSoFar();
@@ -321,12 +343,15 @@ export function schedule({ dayLength, dayCount, activities }) {
           }
         });
         
-        let newSlot;
+        let newSlot, iterations = 0;
         do {
           newSlot = pendingSlots[(Math.random() * pendingSlots.length)|0];
-        } while(Math.random() >=
+        } while(++iterations <= 1000 && (
+                Math.random() >=
                 (probabilities[slots[newSlot].activity] / greatestProbability) /
-                numberOfSlotsForActivity[slots[newSlot].activity]);
+                numberOfSlotsForActivity[slots[newSlot].activity] ||
+                between[newSlot].some(({ sister, tweens }) => includedSlots.indexOf(sister) !== -1 && tweens.every(tween => includedSlots.indexOf(tween) === -1))
+              ));
         
         add(newSlot);
         if(minimumTime > currentDayLength) {
