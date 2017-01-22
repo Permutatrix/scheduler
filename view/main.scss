@@ -220,6 +220,8 @@ html {
 }
 
 .timespan {
+  white-space: nowrap;
+  
   line-height: $slot-height;
   
   .hours {
