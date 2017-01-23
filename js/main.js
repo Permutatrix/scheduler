@@ -1,4 +1,5 @@
 import { schedule } from './algorithm.js';
+import { parseTimestampAsSeconds } from './utils.js';
 import Ractive from 'ractive';
 import MainView from '../view/main.ractive';
 
@@ -47,13 +48,24 @@ window.addEventListener('load', function() {
         return (0.299*r*r + 0.587*g*g + 0.114*b*b) < 0.25;
       },
       formatDuration(duration) {
-        return duration + "h";
+        duration = duration * this.get('timespan.dayLengthInSeconds') / this.get('timespan.dayLength');
+        const seconds = Math.round(duration % 60);
+        duration = (duration / 60)|0;
+        const minutes = duration % 60;
+        duration = (duration / 60)|0;
+        let out = "";
+        if(duration) out += duration + "h";
+        if(minutes) out += minutes + "m";
+        if(seconds) out += seconds + "s";
+        return out;
       },
       
       level: 1,
       inputs: {
         dayCount: 7,
-        slotsPerDay: 48,
+        slotsPerDay: 28,
+        dayStart: '9:00',
+        dayEnd: '23:00',
         activities: [
           {
             name: "activity 1",
@@ -119,6 +131,7 @@ window.addEventListener('load', function() {
         hoursWidth: 40,
         dayWidth: 150,
         dayLength: 24,
+        dayLengthInSeconds: 24*60*60,
         hours: [
           { start: 0, name: "0:00" },
           { start: 4, name: "4:00" },
@@ -369,12 +382,29 @@ window.addEventListener('load', function() {
       time = dayEnd;
     }
     const { hoursWidth, dayWidth } = ractive.get('timespan');
+    const slotsPerDay = ractive.get('inputs.slotsPerDay');
+    const dayStart = parseTimestampAsSeconds(ractive.get('inputs.dayStart'))|0;
+    const dayEnd = parseTimestampAsSeconds(ractive.get('inputs.dayEnd')) || 24*60*60;
+    const dayLengthInSeconds = dayEnd - dayStart;
+    const hours = [];
+    for(let i = 0; i < slotsPerDay; i += 2) {
+      const time = i * dayLengthInSeconds / dayLength + dayStart;
+      hours.push({
+        start: i,
+        name: `${time/60/60|0}:${('0'+((time/60|0)%60)).slice(-2)}`,
+      });
+    }
     ractive.set('timespan', {
       hoursWidth,
       dayWidth,
-      dayLength: ractive.get('inputs.slotsPerDay'),
-      hours: [],
+      dayLength: slotsPerDay,
+      dayLengthInSeconds,
+      hours,
       days,
     });
+  });
+  
+  ractive.on('discard-schedule', () => {
+    ractive.set('timespan.days', []);
   });
 });

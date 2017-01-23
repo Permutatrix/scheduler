@@ -74,11 +74,15 @@ html {
 .inputs {
   margin-bottom: 1em;
   
+  label {
+    line-height: 1.5;
+  }
+  
   input {
     font-size: 1em;
     color: black;
     
-    &[type="number"] {
+    &[type="number"], &[type="time"] {
       width: 3em;
     }
   }

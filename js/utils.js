@@ -73,3 +73,14 @@ export function spread(array) {
   }
   return out;
 }
+
+export function parseTimestampAsSeconds(timestamp) {
+  const results = /(\d?\d):(\d\d)(:\d\d)?/.exec(String(timestamp).trim());
+  if(results) {
+    let out = +results[1] * 60 * 60 + +results[2] * 60;
+    if(results[3]) {
+      out += +results[3].slice(1);
+    }
+    return out;
+  }
+}

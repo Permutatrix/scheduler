@@ -14,17 +14,43 @@
     <Heading>Inputs</Heading>
     <label>
       Number of days:
-      <input type="number" as-ClampedNumber min="1" value="{{ dayCount }}" />
+      <input type="number" as-ClampedNumber min="1"
+             value="{{ dayCount }}" />
     </label>
     <label>
       Slots per day:
-      <input type="number" as-ClampedNumber min="1" value="{{ slotsPerDay }}" />
+      {{#if ~/timespan.days.length > 0}}
+        {{ slotsPerDay }}
+      {{else}}
+        <input type="number" as-ClampedNumber min="1"
+               value="{{ slotsPerDay }}" />
+      {{/if}}
+    </label>
+    <br />
+    <label>
+      Start of day:
+      {{#if ~/timespan.days.length > 0}}
+        {{ dayStart }}
+      {{else}}
+        <input type="time" value="{{ dayStart }}" />
+      {{/if}}
+    </label>
+    <label>
+      End of day:
+      {{#if ~/timespan.days.length > 0}}
+        {{ dayEnd }}
+      {{else}}
+        <input type="time" value="{{ dayEnd }}" />
+      {{/if}}
     </label>
     <div>
       {{> Activities level+1 as level}}
       {{> Patterns level+1 as level}}
     </div>
     <button on-click="generate-schedule">Schedule!</button>
+    {{#if ~/timespan.days.length > 0}}
+      <button on-click="discard-schedule">Discard</button>
+    {{/if}}
   </section>
 {{/partial}}
 
