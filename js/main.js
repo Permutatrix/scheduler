@@ -66,6 +66,7 @@ window.addEventListener('load', function() {
         slotsPerDay: 28,
         dayStart: '9:00',
         dayEnd: '23:00',
+        firstDay: new Date().toDateString(),
         activities: [
           {
             name: "activity 1",
@@ -143,6 +144,7 @@ window.addEventListener('load', function() {
         days: [
           {
             name: 'Day 1',
+            date: new Date('2014-08-19'),
             slots: [
               { start: 0, color: { r: 1, g: 0, b: 0 }, activity: "A" },
               { start: 1, color: { r: 1, g: 1, b: 0 }, activity: "B" },
@@ -153,6 +155,7 @@ window.addEventListener('load', function() {
             ],
           },
           {
+            date: new Date('2014-08-20'),
             slots: [
               { start: 0, color: { r: 1, g: 0, b: 0 }, activity: "Z" },
               { start: 9, color: { r: 0, g: 1, b: 0 }, activity: "Y" },
@@ -363,7 +366,8 @@ window.addEventListener('load', function() {
       activities: options,
     });
     const days = [];
-    for(let time = 0; time < dayLength * dayCount;) {
+    let timeValue = new Date(ractive.get('inputs.firstDay')).getTime();
+    for(let time = 0; time < dayLength * dayCount; timeValue += 1000*60*60*24) {
       const dayStart = time, dayEnd = time + dayLength;
       const slots = [];
       while(time < dayEnd) {
@@ -375,8 +379,10 @@ window.addEventListener('load', function() {
         });
         time = timespan.findEnd({ from: time, to: dayEnd });
       }
+      const date = new Date(timeValue);
       days.push({
-        name: "Day " + (time / dayLength),
+        name: date.toDateString(),
+        date,
         slots,
       });
       time = dayEnd;

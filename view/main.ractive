@@ -28,6 +28,14 @@
     </label>
     <br />
     <label>
+      First day:
+      {{#if ~/timespan.days.length > 0}}
+        {{ firstDay }}
+      {{else}}
+        <input type="date" value="{{ firstDay }}" />
+      {{/if}}
+    </label>
+    <label>
       Start of day:
       {{#if ~/timespan.days.length > 0}}
         {{ dayStart }}
@@ -143,7 +151,7 @@
   <section class="timespan" style---day-length="{{ dayLength }}">
     <Heading>Timespan</Heading>
     {{#each days:i}}{{!
-      }}{{#if i % 7 === 0}}{{!
+      }}{{#if i === 0 || date.getUTCDay() === 0}}{{!
         }}{{#if i !== 0}}{{!
           }}{{> Hours level+1 as level}}
         {{/if}}
