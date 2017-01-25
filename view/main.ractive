@@ -142,14 +142,28 @@
 {{#partial Timespan}}
   <section class="timespan" style---day-length="{{ dayLength }}">
     <Heading>Timespan</Heading>
-    <ol class="hours" style-width="{{ hoursWidth }}px">
-      {{#each hours:i}}
-        <li style---slot-index="{{ start }}">
-          {{ name }}
-        </li>
-      {{/each}}
-    </ol>{{#each days}}{{> Day level+1 as level}}{{/each}}
+    {{#each days:i}}{{!
+      }}{{#if i % 7 === 0}}{{!
+        }}{{#if i !== 0}}{{!
+          }}{{> Hours level+1 as level}}
+        {{/if}}
+        <div class="spacer"></div>
+        {{> Hours level+1 as level}}{{!
+      }}{{/if}}{{!
+      }}{{> Day level+1 as level}}{{!
+    }}{{/each}}{{!
+    }}{{> Hours level+1 as level}}
   </section>
+{{/partial}}
+
+{{#partial Hours}}
+  <ol class="hours" style-width="{{ hoursWidth }}px">
+    {{#each hours:i}}
+      <li style---slot-index="{{ start }}">
+        {{ name }}
+      </li>
+    {{/each}}
+  </ol>
 {{/partial}}
 
 {{#partial Day}}

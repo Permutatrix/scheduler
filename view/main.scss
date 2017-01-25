@@ -234,14 +234,15 @@ html {
     min-width: 2.5rem;
     
     border: $border-style;
-    border-right: none;
+    margin-right: -1px;
     overflow: hidden;
     
     background-color: #eee;
     
+    text-align: right;
+    
     li {
       background-color: white;
-      text-align: right;
       
       &::after {
         /* hack to shrink the element vertically by $border-width so it will
@@ -259,10 +260,10 @@ html {
     
     border: $border-style;
     border-bottom: none;
-    border-right: none;
+    margin-right: -1px;
     
-    &:last-child {
-      border-right: $border-style;
+    + .hours {
+      text-align: left;
     }
     
     > :first-child {
@@ -323,5 +324,10 @@ html {
         }
       }
     }
+  }
+  
+  .spacer {
+    display: block;
+    height: 0.5em;
   }
 }
