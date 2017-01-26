@@ -57,6 +57,7 @@
     </div>
     <button on-click="generate-schedule">Schedule!</button>
     {{#if ~/timespan.days.length > 0}}
+      <button on-click="absorb-schedule">Absorb</button>
       <button on-click="discard-schedule">Discard</button>
     {{/if}}
   </section>

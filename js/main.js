@@ -129,40 +129,13 @@ window.addEventListener('load', function() {
         once: [],
       },
       timespan: {
+        data: null,
         hoursWidth: 40,
         dayWidth: 150,
         dayLength: 24,
         dayLengthInSeconds: 24*60*60,
-        hours: [
-          { start: 0, name: "0:00" },
-          { start: 4, name: "4:00" },
-          { start: 8, name: "8:00" },
-          { start: 12, name: "12:00" },
-          { start: 16, name: "16:00" },
-          { start: 20, name: "20:00" },
-        ],
-        days: [
-          {
-            name: 'Day 1',
-            date: new Date('2014-08-19'),
-            slots: [
-              { start: 0, color: { r: 1, g: 0, b: 0 }, activity: "A" },
-              { start: 1, color: { r: 1, g: 1, b: 0 }, activity: "B" },
-              { start: 6, color: { r: 0, g: 1, b: 0 }, activity: "C" },
-              { start: 9, color: { r: 0, g: 1, b: 1 }, activity: "D" },
-              { start: 18, color: { r: 0, g: 0, b: 1 }, activity: "E" },
-              { start: 22, color: { r: 1, g: 0, b: 1 }, activity: "F" },
-            ],
-          },
-          {
-            date: new Date('2014-08-20'),
-            slots: [
-              { start: 0, color: { r: 1, g: 0, b: 0 }, activity: "Z" },
-              { start: 9, color: { r: 0, g: 1, b: 0 }, activity: "Y" },
-              { start: 15, color: { r: 0, g: 0, b: 1 }, activity: "X" },
-            ],
-          },
-        ],
+        hours: [],
+        days: [],
       },
     },
     components: {
@@ -401,6 +374,7 @@ window.addEventListener('load', function() {
       });
     }
     ractive.set('timespan', {
+      data: timespan,
       hoursWidth,
       dayWidth,
       dayLength: slotsPerDay,
@@ -408,6 +382,28 @@ window.addEventListener('load', function() {
       hours,
       days,
     });
+  });
+  
+  ractive.on('absorb-schedule', () => {
+    const timespan = ractive.get('timespan.data');
+    const additions = {};
+    let time = 0;
+    while(true) {
+      const endTime = timespan.findEnd({ from: time });
+      if(endTime === time) break;
+      const length = endTime - time, activity = timespan.get(time);
+      additions[activity] = (additions[activity]|0) + length;
+      time = endTime;
+    }
+    const activities = ractive.get('inputs.activities');
+    for(let i = 0; i < activities.length; ++i) {
+      const addition = additions[activities[i].name];
+      if(addition) {
+        ractive.add('inputs.activities.'+i+'.timeSpentSoFar', addition);
+      }
+    }
+    ractive.set('inputs.firstDay', new Date(new Date(ractive.get('inputs.firstDay')).getTime() + 1000*60*60*24*ractive.get('timespan.days').length));
+    ractive.set('timespan.days', []);
   });
   
   ractive.on('discard-schedule', () => {
