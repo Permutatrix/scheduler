@@ -2,12 +2,18 @@ import { assert } from './utils.js';
 
 export function create(length) {
   length = length|0;
+  return build({ length });
+}
+
+function build({ buffer, activityForId, idForActivity, length }) {
+  length = length|0;
   assert(length >= 0, "Can't create a timespan of negative length (",length,")!");
   
-  const buffer = new ArrayBuffer(nextValidASMHeapSize(length));
+  buffer = buffer || new ArrayBuffer(nextValidASMHeapSize(length));
   const asm = createASM(window, { length }, buffer);
   const data = new Uint8Array(buffer, 0, length);
-  const activityForId = [''], idForActivity = {};
+  activityForId = activityForId || [''];
+  idForActivity = idForActivity || {};
   
   function getID(activity) {
     if(activity == null) {
@@ -26,7 +32,8 @@ export function create(length) {
     }
   }
   
-  return {
+  const self = Object.freeze({
+    length,
     overwrite({ from, to, activity }) {
       return asm.overwrite(from, to, getID(activity));
     },
@@ -60,7 +67,60 @@ export function create(length) {
         }
       }
     },
-  };
+    
+    resize(newLength) {
+      if(newLength === length) {
+        return self;
+      } else if(newLength < length) {
+        asm.overwrite(newLength, length, 0);
+        return build({
+          buffer,
+          activityForId,
+          idForActivity,
+          length: newLength,
+        });
+      } else if(newLength > length) {
+        const heapSize = nextValidASMHeapSize(newLength);
+        if(heapSize <= buffer.byteLength) {
+          return build({
+            buffer,
+            activityForId,
+            idForActivity,
+            length: newLength,
+          });
+        } else {
+          const newBuffer = new ArrayBuffer(heapSize);
+          const uint32length = Math.ceil(length/4);
+          const oldData = new Uint32Array(buffer, 0, uint32length);
+          const newData = new Uint32Array(newBuffer, 0, uint32length);
+          for(let i = 0; i < uint32length; ++i) {
+            newData[i] = oldData[i];
+          }
+          return build({
+            buffer: newBuffer,
+            activityForId,
+            idForActivity,
+            length: newLength,
+          });
+        }
+      }
+    },
+    copyFrom({ other, offset }) {
+      offset = offset|0;
+      let time = 0;
+      while(true) {
+        const endTime = other.findEnd({ from: time });
+        if(endTime === time) break;
+        self.overwrite({
+          from: time + offset,
+          to: endTime + offset,
+          activity: other.get(time),
+        });
+        time = endTime;
+      }
+    },
+  });
+  return self;
 }
 
 function nextValidASMHeapSize(v) {
