@@ -35,6 +35,10 @@
 }
 
 body {
+  margin: 0;
+  padding: 8px;
+  min-height: calc(100vh - 16px);
+  
   --physical-pixel: 1px;
 }
 
