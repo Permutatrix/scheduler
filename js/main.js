@@ -1,4 +1,5 @@
 import { schedule } from './algorithm.js';
+import * as Timespan from './timespan.js';
 import { parseTimestampAsSeconds } from './utils.js';
 import Ractive from 'ractive';
 import MainView from '../view/main.ractive';
@@ -18,8 +19,6 @@ import { default as ListOfOneBasedLists, refresh as refreshLOOBLs } from './deco
 import isDebugBuild from 'is-debug-build';
 
 Ractive.DEBUG = isDebugBuild;
-
-import * as Timespan from './timespan.js';
 
 window.addEventListener('load', function() {
   let dpr = 0;
@@ -402,11 +401,18 @@ window.addEventListener('load', function() {
   
   ractive.on('absorb-schedule', () => {
     const timespan = ractive.get('timespan.data');
+    if(!timespan) {
+      return;
+    }
+    const days = ractive.get('timespan.days');
+    const dayLength = ractive.get('timespan.dayLength');
+    let endDay = Math.ceil(ractive.get('selectionEnd') / dayLength);
+    if(Number.isNaN(endDay) || Number.isNaN(+ractive.get('selectionStart'))) {
+      endDay = days.length;
+    }
     const additions = {};
-    let time = 0;
-    while(true) {
-      const endTime = timespan.findEnd({ from: time });
-      if(endTime === time) break;
+    for(let time = 0; time < endDay * dayLength;) {
+      const endTime = timespan.findEnd({ from: time, to: endDay * dayLength });
       const length = endTime - time, activity = timespan.get(time);
       additions[activity] = (additions[activity]|0) + length;
       time = endTime;
@@ -418,8 +424,22 @@ window.addEventListener('load', function() {
         ractive.add('inputs.activities.'+i+'.timeSpentSoFar', addition);
       }
     }
-    ractive.set('inputs.firstDay', new Date(new Date(ractive.get('inputs.firstDay')).getTime() + 1000*60*60*24*ractive.get('timespan.days').length).toDateString());
-    ractive.set('timespan.days', []);
+    ractive.set('inputs.firstDay', new Date(new Date(ractive.get('inputs.firstDay')).getTime() + 1000*60*60*24*endDay).toDateString());
+    if(endDay !== days.length) {
+      days.splice(0, endDay);
+      for(let i = 0, len = days.length; i < len; ++i) {
+        days[i].start -= endDay * dayLength;
+        days[i].end -= endDay * dayLength;
+      }
+      ractive.update('timespan.days');
+      const newTimespan = Timespan.create(days.length * dayLength);
+      newTimespan.copyFrom({ other: timespan, from: endDay * dayLength });
+      ractive.set('timespan.data', newTimespan);
+      ractive.set('timespan.rawSelection', { start: NaN, end: NaN });
+    } else {
+      ractive.set('timespan.data', null);
+      ractive.set('timespan.days', []);
+    }
   });
   
   ractive.on('discard-schedule', () => {
