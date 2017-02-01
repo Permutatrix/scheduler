@@ -234,6 +234,7 @@ html {
   
   .hours {
     @extend %column;
+    @extend %no-select;
     
     min-width: 2.5rem;
     
