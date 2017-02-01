@@ -402,7 +402,7 @@ window.addEventListener('load', function() {
         ractive.add('inputs.activities.'+i+'.timeSpentSoFar', addition);
       }
     }
-    ractive.set('inputs.firstDay', new Date(new Date(ractive.get('inputs.firstDay')).getTime() + 1000*60*60*24*ractive.get('timespan.days').length));
+    ractive.set('inputs.firstDay', new Date(new Date(ractive.get('inputs.firstDay')).getTime() + 1000*60*60*24*ractive.get('timespan.days').length).toDateString());
     ractive.set('timespan.days', []);
   });
   
