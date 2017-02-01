@@ -423,7 +423,30 @@ window.addEventListener('load', function() {
   });
   
   ractive.on('discard-schedule', () => {
-    ractive.set('timespan.days', []);
+    let timespan = ractive.get('timespan.data');
+    if(!timespan) {
+      return;
+    }
+    const selectionStart = +ractive.get('selectionStart'),
+          selectionEnd = +ractive.get('selectionEnd');
+    if(selectionEnd > selectionStart) {
+      const dayLength = ractive.get('timespan.dayLength');
+      const startDay = Math.floor(selectionStart / dayLength);
+      const endDay = Math.ceil(selectionEnd / dayLength);
+      const dayCount = endDay - startDay;
+      const days = ractive.get('timespan.days');
+      for(let i = endDay, len = days.length; i < len; ++i) {
+        days[i - dayCount].slots = days[i].slots;
+      }
+      days.length -= dayCount;
+      ractive.update('timespan.days');
+      timespan.copyFrom({ from: endDay * dayLength, start: startDay * dayLength });
+      ractive.set('timespan.data', timespan = timespan.resize(timespan.length - dayCount * dayLength));
+      ractive.set('timespan.rawSelection', { start: NaN, end: NaN });
+    } else {
+      ractive.set('timespan.data', null);
+      ractive.set('timespan.days', []);
+    }
   });
   
   ractive.on('selectionStart selectionProgress', event => {
@@ -439,7 +462,9 @@ window.addEventListener('load', function() {
     }
   });
   
-  window.addEventListener('mousedown', () => {
-    ractive.set('timespan.rawSelection', { start: NaN, end: NaN });
+  document.body.addEventListener('mousedown', event => {
+    if(event.target.tagName !== 'BUTTON') {
+      ractive.set('timespan.rawSelection', { start: NaN, end: NaN });
+    }
   });
 });
