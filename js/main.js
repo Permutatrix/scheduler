@@ -505,7 +505,7 @@ window.addEventListener('load', function() {
   });
   
   document.body.addEventListener('mousedown', event => {
-    if(event.target.tagName !== 'BUTTON') {
+    if((event.buttons & 1) && event.target.tagName !== 'BUTTON') {
       ractive.set('timespan.rawSelection', { start: NaN, end: NaN });
     }
   });
