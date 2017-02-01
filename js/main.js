@@ -338,7 +338,7 @@ window.addEventListener('load', function() {
           excludes: pattern.excludes.map(list => list.map(x => '' + x)),
           nonoptional,
           once: {},
-        }
+        };
       }),
       once: {},
       timeSpentSoFar,
