@@ -130,12 +130,26 @@ window.addEventListener('load', function() {
       },
       timespan: {
         data: null,
+        rawSelection: {
+          start: NaN,
+          end: NaN,
+        },
         hoursWidth: 40,
         dayWidth: 150,
         dayLength: 24,
         dayLengthInSeconds: 24*60*60,
         hours: [],
         days: [],
+      },
+    },
+    computed: {
+      selectionStart() {
+        return Math.min(this.get('timespan.rawSelection.start'),
+                        this.get('timespan.rawSelection.end'));
+      },
+      selectionEnd() {
+        return Math.max(this.get('timespan.rawSelection.start'),
+                        this.get('timespan.rawSelection.end')) + 1;
       },
     },
     components: {
@@ -356,6 +370,8 @@ window.addEventListener('load', function() {
       days.push({
         name: date.toDateString(),
         date,
+        start: dayStart,
+        end: dayEnd,
         slots,
       });
       time = dayEnd;
@@ -408,5 +424,22 @@ window.addEventListener('load', function() {
   
   ractive.on('discard-schedule', () => {
     ractive.set('timespan.days', []);
+  });
+  
+  ractive.on('selectionStart selectionProgress', event => {
+    if(event.original.buttons & 1) {
+      // TODO: Oh, no! Magic number 20?!?!
+      const slot = (event.original.offsetY / 20 + event.get('start'))|0;
+      if(event.name === 'selectionStart') {
+        ractive.set('timespan.rawSelection.start', slot);
+      }
+      ractive.set('timespan.rawSelection.end', slot);
+      event.original.preventDefault();
+      event.original.stopPropagation();
+    }
+  });
+  
+  window.addEventListener('mousedown', () => {
+    ractive.set('timespan.rawSelection', { start: NaN, end: NaN });
   });
 });

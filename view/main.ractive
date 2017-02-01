@@ -178,7 +178,12 @@
 {{#partial Day}}
   <section class="day" style-width="{{ ~/timespan.dayWidth }}px">
     <Heading>{{ name }}</Heading>
-    <ol class="slots">
+    <ol class="slots"
+        class-selection="{{ ~/selectionStart < this.end && ~/selectionEnd > this.start }}"
+        style---selection-start="{{ Math.max(0, ~/selectionStart - this.start)|0 }}"
+        style---selection-length="{{ Math.min(this.end, ~/selectionEnd) - Math.max(this.start, ~/selectionStart)|0 }}"
+        on-mousedown="selectionStart"
+        on-mousemove="selectionProgress">
       {{#each slots:i}}
         {{#with (slots[i + 1] || { start: dayLength }).start - start as slotLength}}
           {{> Slot level+1 as level}}
