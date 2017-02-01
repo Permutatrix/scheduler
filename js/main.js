@@ -544,4 +544,52 @@ window.addEventListener('load', function() {
       ractive.fire('apply-activity', false);
     }
   });
+  
+  ractive.on('save-to-file', () => {
+    const json = JSON.stringify(ractive.get(), function(key, value) {
+      // root
+      if(key === 'level' || key === 'selectionStart' || key === 'selectionEnd') {
+        return;
+      }
+      // root.timespan
+      if(key === 'rawSelection' || key === 'data') {
+        return;
+      }
+      return value;
+    }, 2);
+    window.open('data:application/json;charset=utf-8,' + encodeURIComponent(json));
+  });
+  
+  ractive.on('load-from-file', () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.addEventListener('change', () => {
+      const file = input.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.addEventListener('load', () => {
+        let data;
+        try {
+          data = JSON.parse(reader.result);
+          data.timespan.rawSelection = { start: NaN, end: NaN };
+          const { days, dayLength } = data.timespan;
+          const timespan = data.timespan.data = Timespan.create(days.length * dayLength);
+          for(let dayIndex = 0; dayIndex < days.length; ++dayIndex) {
+            const { start, end, slots } = days[dayIndex];
+            for(let i = 0; i < slots.length; ++i) {
+              const slotEnd = i + 1 < slots.length ? slots[i + 1].start : end;
+              timespan.overwrite({ from: slots[i].start, to: slotEnd, activity: slots[i].activity });
+            }
+            days[dayIndex].date = new Date(days[dayIndex].date);
+          }
+        } catch(e) {
+          return;
+        }
+        ractive.set('inputs', data.inputs);
+        ractive.set('timespan', data.timespan);
+      });
+      reader.readAsText(file);
+    });
+    input.click();
+  });
 });
