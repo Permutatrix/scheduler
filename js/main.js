@@ -555,6 +555,10 @@ window.addEventListener('load', function() {
       if(key === 'rawSelection' || key === 'data') {
         return;
       }
+      // root.timespan.days.*.slots.*
+      if(key === 'color' && typeof this.start === 'number') {
+        return;
+      }
       return value;
     }, 2);
     window.open('data:application/json;charset=utf-8,' + encodeURIComponent(json));
@@ -574,11 +578,16 @@ window.addEventListener('load', function() {
           data.timespan.rawSelection = { start: NaN, end: NaN };
           const { days, dayLength } = data.timespan;
           const timespan = data.timespan.data = Timespan.create(days.length * dayLength);
+          const colors = {};
+          data.inputs.activities.forEach(({ name, color }) => {
+            colors[name] = color;
+          });
           for(let dayIndex = 0; dayIndex < days.length; ++dayIndex) {
             const { start, end, slots } = days[dayIndex];
             for(let i = 0; i < slots.length; ++i) {
               const slotEnd = i + 1 < slots.length ? slots[i + 1].start : end;
               timespan.overwrite({ from: slots[i].start, to: slotEnd, activity: slots[i].activity });
+              slots[i].color = colors[slots[i].activity] || { r: 0, g: 0, b: 0 };
             }
             days[dayIndex].date = new Date(days[dayIndex].date);
           }
