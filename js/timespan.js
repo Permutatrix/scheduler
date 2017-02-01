@@ -105,15 +105,16 @@ function build({ buffer, activityForId, idForActivity, length }) {
         }
       }
     },
-    copyFrom({ other, offset }) {
-      offset = offset|0;
-      let time = 0;
-      while(true) {
-        const endTime = other.findEnd({ from: time });
-        if(endTime === time) break;
+    copyFrom({ other, from, to, start }) {
+      other = other || self;
+      from = from|0;
+      to = to === undefined ? other.length : to|0;
+      start = start|0;
+      for(let time = from; time < to;) {
+        const endTime = other.findEnd({ from: time, to });
         self.overwrite({
-          from: time + offset,
-          to: endTime + offset,
+          from: time - from + start,
+          to: endTime - from + start,
           activity: other.get(time),
         });
         time = endTime;
