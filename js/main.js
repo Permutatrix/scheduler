@@ -538,4 +538,10 @@ window.addEventListener('load', function() {
       updateSlots(timespan, selectionStart, selectionEnd);
     }
   });
+  
+  window.addEventListener('keypress', event => {
+    if(event.key === 'Delete') {
+      ractive.fire('apply-activity', false);
+    }
+  });
 });
