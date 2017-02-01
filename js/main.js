@@ -316,6 +316,21 @@ window.addEventListener('load', function() {
       allotments[name] = allotment;
       colors[name] = color;
     });
+    const existingDays = ractive.get('timespan.days');
+    const existingTimespan = ractive.get('timespan.data');
+    let existingLength = 0;
+    if(existingTimespan) {
+      existingLength = existingTimespan.length;
+      for(let time = 0; time < existingLength;) {
+        const endTime = existingTimespan.findEnd({ from: time });
+        const activity = existingTimespan.get(time);
+        if(typeof timeSpentSoFar[activity] === 'number') {
+          timeSpentSoFar[activity] += endTime - time;
+        }
+        time = endTime;
+      }
+    }
+    // TODO: handle cases where the existing timespan ends in the middle of a pattern cycle.
     const options = {
       patterns: ractive.get('inputs.patterns').map(pattern => {
         const patternSlots = pattern.slots, slots = {}, nonoptional = [];
@@ -352,7 +367,7 @@ window.addEventListener('load', function() {
       activities: options,
     });
     const days = [];
-    let timeValue = new Date(ractive.get('inputs.firstDay')).getTime();
+    let timeValue = new Date(ractive.get('inputs.firstDay')).getTime() + 1000*60*60*24*existingDays.length;
     for(let time = 0; time < dayLength * dayCount; timeValue += 1000*60*60*24) {
       const dayStart = time, dayEnd = time + dayLength;
       const slots = [];
@@ -369,8 +384,8 @@ window.addEventListener('load', function() {
       days.push({
         name: date.toDateString(),
         date,
-        start: dayStart,
-        end: dayEnd,
+        start: dayStart + existingLength,
+        end: dayEnd + existingLength,
         slots,
       });
       time = dayEnd;
@@ -388,15 +403,22 @@ window.addEventListener('load', function() {
         name: `${time/60/60|0}:${('0'+((time/60|0)%60)).slice(-2)}`,
       });
     }
-    ractive.set('timespan', {
-      data: timespan,
-      hoursWidth,
-      dayWidth,
-      dayLength: slotsPerDay,
-      dayLengthInSeconds,
-      hours,
-      days,
-    });
+    if(existingTimespan) {
+      const newTimespan = existingTimespan.resize(existingLength + timespan.length);
+      newTimespan.copyFrom({ other: timespan, start: existingLength });
+      ractive.set('timespan.data', newTimespan);
+      ractive.push('timespan.days', ...days);
+    } else {
+      ractive.set('timespan', {
+        data: timespan,
+        hoursWidth,
+        dayWidth,
+        dayLength: slotsPerDay,
+        dayLengthInSeconds,
+        hours,
+        days,
+      });
+    }
   });
   
   ractive.on('absorb-schedule', () => {
