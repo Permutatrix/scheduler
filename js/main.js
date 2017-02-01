@@ -308,6 +308,21 @@ window.addEventListener('load', function() {
     }
   });
   
+  function generateDaySlots(timespan, dayStart, dayEnd, colors) {
+    let time = dayStart;
+    const slots = [];
+    while(time < dayEnd) {
+      const activity = timespan.get(time);
+      slots.push({
+        start: time - dayStart,
+        color: activity ? colors[activity] : { r: 0, g: 0, b: 0 },
+        activity: activity || "",
+      });
+      time = timespan.findEnd({ from: time, to: dayEnd });
+    }
+    return slots;
+  }
+  
   ractive.on('generate-schedule', () => {
     const timeSpentSoFar = {}, allotments = {}, colors = {};
     const activities = ractive.get('inputs.activities');
@@ -370,23 +385,13 @@ window.addEventListener('load', function() {
     let timeValue = new Date(ractive.get('inputs.firstDay')).getTime() + 1000*60*60*24*existingDays.length;
     for(let time = 0; time < dayLength * dayCount; timeValue += 1000*60*60*24) {
       const dayStart = time, dayEnd = time + dayLength;
-      const slots = [];
-      while(time < dayEnd) {
-        const activity = timespan.get(time);
-        slots.push({
-          start: time - dayStart,
-          color: activity ? colors[activity] : { r: 0, g: 0, b: 0 },
-          activity: activity || "",
-        });
-        time = timespan.findEnd({ from: time, to: dayEnd });
-      }
       const date = new Date(timeValue);
       days.push({
         name: date.toDateString(),
         date,
         start: dayStart + existingLength,
         end: dayEnd + existingLength,
-        slots,
+        slots: generateDaySlots(timespan, dayStart, dayEnd, colors),
       });
       time = dayEnd;
     }
@@ -507,6 +512,30 @@ window.addEventListener('load', function() {
   document.body.addEventListener('mousedown', event => {
     if((event.buttons & 1) && event.target.tagName !== 'BUTTON') {
       ractive.set('timespan.rawSelection', { start: NaN, end: NaN });
+    }
+  });
+  
+  function updateSlots(timespan, startTime, endTime) {
+    const dayLength = ractive.get('timespan.dayLength');
+    const startDay = Math.floor(startTime / dayLength);
+    const endDay = Math.ceil(endTime / dayLength);
+    const colors = {};
+    ractive.get('inputs.activities').forEach(({ name, color }) => {
+      colors[name] = color;
+    });
+    for(let i = startDay; i < endDay; ++i) {
+      ractive.set(kp('timespan.days', i, 'slots'), generateDaySlots(timespan, i * dayLength, (i + 1) * dayLength, colors));
+    }
+  }
+  
+  ractive.on('apply-activity', info => {
+    const selectionStart = +ractive.get('selectionStart');
+    const selectionEnd = +ractive.get('selectionEnd');
+    if(selectionEnd > selectionStart) {
+      const activity = info ? info.get('name') : undefined;
+      const timespan = ractive.get('timespan.data');
+      timespan.overwrite({ from: selectionStart, to: selectionEnd, activity });
+      updateSlots(timespan, selectionStart, selectionEnd);
     }
   });
 });

@@ -68,7 +68,7 @@
     {{#each activities}}
       <li style-background-color="{{ cssColorFromRGB(color) }}"
           class-white-text="{{ isDark(color) }}"
-          as-ContextMenu="{ Duplicate: 'duplicate-activity', Remove: 'remove-activity' }">
+          as-ContextMenu="{ Duplicate: 'duplicate-activity', Remove: 'remove-activity' }, ~/selectionEnd > ~/selectionStart && { Apply: 'apply-activity' }">
         <DisguisedInput value="{{ name }}" />
         <span class="controls">
           <input type="number" as-ClampedNumber min="0"
