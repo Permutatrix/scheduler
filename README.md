@@ -12,6 +12,7 @@ I made this tool for personal use. Here are some reasons to run in the other dir
 * It requires custom context menus to be usable and is thus Firefox-only.
 * It only has the small set of features I happen to need and a few that were just gratifying to add in.
 * I normally pride myself on my scrupulousness, but for this I pulled out every trick in the lazy book&mdash;the code is 100% hellspawn, guaranteed!
+* It won't even build out of the box. You have to `cd node_modules/ractive && npm install && ./scripts/build.sh` first. Heck, I'm not even sure if that's the correct procedure.
 * The parts of it that need to be fast are slow, and the parts that don't need to be fast have outrageous optimizations applied to them to the point of complete incomprehensibility.
 
 If you see potential in it, you're free to fork it and clean it up. Good luck.
