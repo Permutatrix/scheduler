@@ -1,6 +1,6 @@
 # the almighty scheduler
 
-Generates schedules. Has a few features. Documentation is no.
+Generates schedules. Has a few features. Documentation is no. [Check it out.](https://permutatrix.github.io/scheduler/)
 
 ## lasciate ogne speranza&hellip;
 
