@@ -114,7 +114,7 @@ gulp.task('watch', ['default'], function() {
 
 gulp.task('webserver', ['default'], function(cb) {
   httpServer.createServer({ root: './dist' }).listen(8080);
-  console.log("\nhttp://localhost:8080/scheduler.html");
+  console.log("\nhttp://localhost:8080/index.html");
 });
 
 gulp.task('watchserver', ['watch', 'webserver']);
@@ -156,5 +156,5 @@ gulp.task('minified', ['js-minified', 'css-minified', 'assets']);
 
 gulp.task('webserver-minified', ['minified'], function(cb) {
   httpServer.createServer({ root: './dist' }).listen(8080);
-  console.log("\nhttp://localhost:8080/scheduler.html");
+  console.log("\nhttp://localhost:8080/index.html");
 });
