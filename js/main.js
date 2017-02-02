@@ -59,6 +59,7 @@ window.addEventListener('load', function() {
         return out;
       },
       
+      formatVersion: 1,
       level: 1,
       inputs: {
         dayCount: 7,
@@ -575,6 +576,10 @@ window.addEventListener('load', function() {
         let data;
         try {
           data = JSON.parse(reader.result);
+          const version = data.formatVersion;
+          if(version !== (version|0) || version < 1 || version > ractive.get('formatVersion')) {
+            throw Error(`Unsupported version ${version}!`);
+          }
           data.timespan.rawSelection = { start: NaN, end: NaN };
           const { days, dayLength } = data.timespan;
           const timespan = data.timespan.data = Timespan.create(days.length * dayLength);
