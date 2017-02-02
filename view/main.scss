@@ -10,6 +10,7 @@
 // Colors
   $text-color: black;
   $white-text-color: white;
+  $error-text-color: #d11;
   $border-color: black;
   $grid-line-color: rgba(0,0,0,0.15);
 // Lengths
@@ -48,6 +49,10 @@ menu {
 
 .white-text {
   color: $white-text-color;
+}
+
+.error-text {
+  color: $error-text-color;
 }
 
 input[type="color"] {

@@ -61,6 +61,7 @@ window.addEventListener('load', function() {
       
       formatVersion: 1,
       level: 1,
+      error: null,
       inputs: {
         dayCount: 7,
         slotsPerDay: 28,
@@ -597,6 +598,10 @@ window.addEventListener('load', function() {
             days[dayIndex].date = new Date(days[dayIndex].date);
           }
         } catch(e) {
+          ractive.set('error', {
+            text: String(e),
+            time: Date.now(),
+          });
           return;
         }
         ractive.set('inputs', data.inputs);
