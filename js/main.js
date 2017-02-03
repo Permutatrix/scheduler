@@ -374,10 +374,13 @@ window.addEventListener('load', function() {
             }
           }
         }
+        function prepareRequiresExcludes(re) {
+          return re.map(list => list.filter(x => patternSlots[x].enabled).map(x => '' + x));
+        }
         return {
           slots,
-          requires: pattern.requires.map(list => list.map(x => '' + x)),
-          excludes: pattern.excludes.map(list => list.map(x => '' + x)),
+          requires: prepareRequiresExcludes(pattern.requires),
+          excludes: prepareRequiresExcludes(pattern.excludes),
           nonoptional,
           once: {},
         };
