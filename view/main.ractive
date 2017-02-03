@@ -131,7 +131,8 @@
       <li style-background-color="{{ cssColorFromRGB(~/inputs.activities[activity].color) }}"
           class-white-text="{{ isDark(~/inputs.activities[activity].color) }}"
           class-non-optional="{{ !optional }}"
-          as-ContextMenu="{ Duplicate: 'duplicate-pattern-slot', Remove: 'remove-pattern-slot' }, optional ? { 'Make Mandatory': 'toggle-pattern-slot-optional' } : { 'Make Optional': 'toggle-pattern-slot-optional' }">
+          class-disabled="{{ !enabled }}"
+          as-ContextMenu="{ Duplicate: 'duplicate-pattern-slot', Remove: 'remove-pattern-slot' }, optional ? { 'Make Mandatory': 'toggle-pattern-slot-optional' } : { 'Make Optional': 'toggle-pattern-slot-optional' }, enabled ? { 'Disable': 'toggle-pattern-slot-enabled' } : { 'Enable': 'toggle-pattern-slot-enabled' }">
         <DisguisedSelect values="{{ ~/inputs.activities }}" i="{{ activity }}">
           {{ name }}
         </DisguisedSelect>

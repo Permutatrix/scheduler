@@ -59,7 +59,7 @@ window.addEventListener('load', function() {
         return out;
       },
       
-      formatVersion: 1,
+      formatVersion: 2,
       level: 1,
       error: null,
       inputs: {
@@ -91,6 +91,7 @@ window.addEventListener('load', function() {
                 preferredTime: 6,
                 minimumTime: 1,
                 maximumTime: 12,
+                enabled: true,
                 optional: true,
               },
               {
@@ -98,6 +99,7 @@ window.addEventListener('load', function() {
                 preferredTime: 6,
                 minimumTime: 1,
                 maximumTime: 12,
+                enabled: true,
                 optional: true,
               },
               {
@@ -105,6 +107,7 @@ window.addEventListener('load', function() {
                 preferredTime: 6,
                 minimumTime: 1,
                 maximumTime: 12,
+                enabled: true,
                 optional: true,
               },
               {
@@ -112,6 +115,7 @@ window.addEventListener('load', function() {
                 preferredTime: 6,
                 minimumTime: 1,
                 maximumTime: 12,
+                enabled: true,
                 optional: true,
               },
             ],
@@ -244,6 +248,10 @@ window.addEventListener('load', function() {
     info.toggle('optional');
   });
   
+  ractive.on('toggle-pattern-slot-enabled', info => {
+    info.toggle('enabled');
+  });
+  
   function adjustForActivity(adjustForX, index) {
     const patternCount = ractive.get('inputs.patterns').length;
     for(let i = 0; i < patternCount; ++i) {
@@ -354,14 +362,16 @@ window.addEventListener('load', function() {
         for(let i = 0; i < patternSlots.length; ++i) {
           const index = '' + i;
           const ps = patternSlots[i];
-          slots[index] = {
-            activity: activities[ps.activity].name,
-            preferredTime: ps.preferredTime,
-            minimumTime: ps.minimumTime,
-            maximumTime: ps.maximumTime,
-          };
-          if(!ps.optional) {
-            nonoptional.push(index);
+          if(ps.enabled) {
+            slots[index] = {
+              activity: activities[ps.activity].name,
+              preferredTime: ps.preferredTime,
+              minimumTime: ps.minimumTime,
+              maximumTime: ps.maximumTime,
+            };
+            if(!ps.optional) {
+              nonoptional.push(index);
+            }
           }
         }
         return {
@@ -581,6 +591,13 @@ window.addEventListener('load', function() {
           if(version !== (version|0) || version < 1 || version > ractive.get('formatVersion')) {
             throw Error(`Unsupported version ${version}!`);
           }
+          
+          if(version <= 1) {
+            data.inputs.patterns.forEach(x => x.slots.forEach(slot => {
+              slot.enabled = true;
+            }));
+          }
+          
           data.timespan.rawSelection = { start: NaN, end: NaN };
           const { days, dayLength } = data.timespan;
           const timespan = data.timespan.data = Timespan.create(days.length * dayLength);
