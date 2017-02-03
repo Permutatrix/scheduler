@@ -161,9 +161,15 @@ html {
       
       counter-reset: pattern-slot;
       
-      li::before {
-        counter-increment: pattern-slot;
-        content: counter(pattern-slot) '. ';
+      li {
+        &::before {
+          counter-increment: pattern-slot;
+          content: counter(pattern-slot) '. ';
+        }
+        
+        .controls {
+          float: right;
+        }
       }
       
       li.non-optional {
